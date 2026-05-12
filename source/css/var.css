@@ -1,0 +1,58 @@
+/* === Aurora-Inspired Color System === */
+:root {
+  /* Light mode (Aurora 柔和版) */
+  --aurora-c1: #4facfe;
+  --aurora-c2: #7367f0;
+  --aurora-c3: #f093fb;
+  --aurora-gradient: linear-gradient(135deg, #4facfe 0%, #7367f0 50%, #f093fb 100%);
+  --aurora-gradient-h: linear-gradient(90deg, #4facfe, #7367f0, #f093fb);
+
+  /* Page background */
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+
+  /* Glass effect params */
+  --glass-nav-bg: rgba(255,255,255,0.65);
+  --glass-nav-blur: blur(12px);
+  --glass-nav-border: rgba(255,255,255,0.5);
+  --glass-card-bg: rgba(255,255,255,0.75);
+  --glass-card-blur: blur(10px);
+  --glass-card-border: rgba(255,255,255,0.5);
+
+  /* Neon glow */
+  --glow-light: 0 0 20px rgba(79,172,254,0.15);
+  --glow-color: rgba(79,172,254,0.15);
+
+  /* Transition */
+  --theme-transition: background-color 0.4s ease, color 0.3s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+
+  /* Accent overrides (override Butterfly defaults) */
+  --btn-hover-color: #ff7242;
+  --scrollbar-color: #4facfe;
+  --text-highlight-color: #1f2d3d;
+  --blockquote-color: #6a737d;
+}
+
+/* Dark mode (Aurora 原版) */
+[data-theme="dark"] {
+  --aurora-c1: #24c6dc;
+  --aurora-c2: #5433ff;
+  --aurora-c3: #ff0099;
+  --aurora-gradient: linear-gradient(135deg, #24c6dc 0%, #5433ff 50%, #ff0099 100%);
+  --aurora-gradient-h: linear-gradient(90deg, #24c6dc, #5433ff, #ff0099);
+
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #212121;
+
+  --glass-nav-bg: rgba(30,30,30,0.7);
+  --glass-nav-border: rgba(255,255,255,0.08);
+  --glass-card-bg: rgba(30,30,30,0.7);
+  --glass-card-border: rgba(255,255,255,0.08);
+
+  --glow-light: 0 0 24px rgba(36,198,220,0.25);
+  --glow-color: rgba(36,198,220,0.25);
+
+  --scrollbar-color: #24c6dc;
+  --text-highlight-color: #ffffff;
+  --blockquote-color: #bebebe;
+}

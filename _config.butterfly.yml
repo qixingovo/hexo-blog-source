@@ -1,0 +1,203 @@
+# Navigation bar
+nav:
+  logo:
+  display_title: true
+  fixed: false
+
+menu:
+  Home: / || fas fa-home
+  Archives: /archives/ || fas fa-archive
+  Tags: /tags/ || fas fa-tags
+  Categories: /categories/ || fas fa-folder-open
+  List||fas fa-list:
+    Music: /music/ || fas fa-music
+    Movie: /movies/ || fas fa-video
+  Comments: /comments/ || fas fa-envelope-open
+  Link: /link/ || fas fa-link
+  About: /about/ || fas fa-heart
+
+# Code Blocks
+highlight_theme: light
+highlight_copy: true
+highlight_lang: true
+highlight_shrink: false
+highlight_height_limit: false
+
+# Social
+social:
+  fab fa-github: https://github.com/qixingovo || Github || '#24292e'
+  fas fa-envelope: mailto:qixingovo@gmail.com || Email || '#4a7dbe'
+
+# Image
+favicon: /img/ymb2.png
+avatar:
+  img: /img/ymb3.png
+  effect: false
+
+# Default cover images
+cover:
+  index_enable: true
+  aside_enable: true
+  archives_enable: true
+  position: both
+  default_cover:
+    - /img/default_cover/p1.jpg
+    - /img/default_cover/p2.jpg
+    - /img/default_cover/p3.jpg
+    - /img/default_cover/p4.jpg
+    - /img/default_cover/p5.jpg
+
+error_img:
+  flink: /img/friend_404.gif
+  post_page: /img/404.jpg
+
+# 404 page
+error_404:
+  enable: true
+  subtitle: 'Page Not Found'
+  background: /img/default_cover/p5.jpg
+
+post_meta:
+  page:
+    date_type: created
+    date_format: date
+    categories: true
+    tags: false
+    label: true
+  post:
+    date_type: both
+    date_format: date
+    categories: true
+    tags: true
+    label: true
+
+index_post_content:
+  method: 2
+  length: 200
+
+# Copyright
+post_copyright:
+  enable: true
+  decode: false
+  author_href:
+  license: CC BY-NC-SA 4.0
+  license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+# TOC
+toc:
+  post: true
+  page: false
+  number: true
+  expand: false
+  style_simple: false
+  scroll_percent: true
+
+# Post pagination
+post_pagination: 1
+
+# Outdated notice
+noticeOutdate:
+  enable: false
+  style: flat
+  limit_day: 365
+  position: top
+  message_prev: It has been
+  message_next: days since the last update, the content of the article may be outdated.
+
+# Footer
+footer:
+  owner:
+    enable: true
+    since: 2025
+  custom_text:
+  copyright: true
+
+# Aside
+aside:
+  enable: true
+  hide: false
+  button: true
+  mobile: true
+  position: right
+  display:
+    archive: true
+    tag: true
+    category: true
+  card_author:
+    enable: true
+    description:
+    button:
+      enable: true
+      icon: fab fa-github
+      text: Follow Me
+      link: https://github.com/qixingovo
+  card_announcement:
+    enable: true
+    content: 欢迎来到我的博客
+  card_recent_post:
+    enable: true
+    limit: 5
+    sort: date
+  card_categories:
+    enable: true
+    limit: 8
+    expand: none
+  card_tags:
+    enable: true
+    limit: 40
+    color: false
+    orderby: random
+    order: 1
+  card_archives:
+    enable: true
+    type: monthly
+    format: MMMM YYYY
+    order: -1
+    limit: 8
+  card_webinfo:
+    enable: true
+    post_count: true
+    last_push_date: true
+
+# Busuanzi
+busuanzi:
+  site_uv: true
+  site_pv: true
+  page_pv: true
+
+# Translate
+translate:
+  enable: true
+  default: 繁
+  defaultEncoding: 2
+  translateDelay: 0
+  msgToTraditionalChinese: '繁'
+  msgToSimplifiedChinese: '简'
+
+# Read mode
+readmode: true
+
+# Dark mode
+darkmode:
+  enable: true
+  button: true
+  autoChangeMode: false
+
+# Right side scroll percent
+rightside_scroll_percent: true
+
+# Share
+sharejs:
+  enable: true
+  sites: facebook,twitter,wechat,weibo,qq
+
+# Inject custom CSS/JS
+inject:
+  head:
+    - <link rel="stylesheet" href="/css/var.css">
+    - <link rel="stylesheet" href="/css/custom.css">
+  bottom:
+    - <script src="/js/custom.js"></script>
+
+# CDN (disable — use local files)
+# Use local assets where possible

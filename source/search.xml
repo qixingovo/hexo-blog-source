@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+
+    <entry>
+      <title>归档</title>
+      <link href="/archives/"/>
+      <url>/archives/</url>
+      <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>留言板</title>
+      <link href="/comments/"/>
+      <url>/comments/</url>
+      <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>博客说明 / 新手索引</title>
+      <link href="/2026/04/17/blog-guide/"/>
+      <url>/2026/04/17/blog-guide/</url>
+      <content type="html"><![CDATA[快速了解博客结构、阅读入口和更新节奏。]]></content>
+      <categories>
+          <category> 博客说明 </category>
+      </categories>
+      <tags>
+          <tag> 博客说明 </tag>
+      </tags>
+    </entry>
+
+    <entry>
+      <title>前端渲染优化小记</title>
+      <link href="/2026/04/16/frontend-render-optimization/"/>
+      <url>/2026/04/16/frontend-render-optimization/</url>
+      <content type="html"><![CDATA[一次首屏抖动排查与优化记录。]]></content>
+      <categories>
+          <category> 前端 </category>
+      </categories>
+      <tags>
+          <tag> React </tag>
+      </tags>
+    </entry>
+
+    <entry>
+      <title>后端 API 设计复盘</title>
+      <link href="/2026/04/15/backend-api-notes/"/>
+      <url>/2026/04/15/backend-api-notes/</url>
+      <content type="html"><![CDATA[统一错误码、分页与幂等的复盘。]]></content>
+      <categories>
+          <category> 后端 </category>
+      </categories>
+      <tags>
+          <tag> API </tag>
+      </tags>
+    </entry>
+
+    <entry>
+      <title>每周效率模板</title>
+      <link href="/2026/04/14/tooling-weekly-template/"/>
+      <url>/2026/04/14/tooling-weekly-template/</url>
+      <content type="html"><![CDATA[可直接复用的周计划与复盘模板。]]></content>
+      <categories>
+          <category> 工具 </category>
+      </categories>
+      <tags>
+          <tag> 效率工具 </tag>
+      </tags>
+    </entry>
+
+    <entry>
+      <title>深度工作实践随笔</title>
+      <link href="/2026/04/13/life-note-deep-work/"/>
+      <url>/2026/04/13/life-note-deep-work/</url>
+      <content type="html"><![CDATA[减少分心、提高专注度的实践记录。]]></content>
+      <categories>
+          <category> 随笔 </category>
+      </categories>
+      <tags>
+          <tag> 工作流 </tag>
+      </tags>
+    </entry>
+
+    <entry>
+      <title>项目复盘怎么写更有效</title>
+      <link href="/2026/04/12/project-retro-writing/"/>
+      <url>/2026/04/12/project-retro-writing/</url>
+      <content type="html"><![CDATA[复盘四问法，保证复盘能沉淀为下次动作。]]></content>
+      <categories>
+          <category> 工具 </category>
+      </categories>
+      <tags>
+          <tag> 学习笔记 </tag>
+      </tags>
+    </entry>
+
+    <entry>
+      <title>关于</title>
+      <link href="/about/index.html"/>
+      <url>/about/index.html</url>
+        <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>电影</title>
+      <link href="/movies/index.html"/>
+      <url>/movies/index.html</url>
+        <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>友链</title>
+      <link href="/link/index.html"/>
+      <url>/link/index.html</url>
+        <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
+        <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>音乐</title>
+      <link href="/music/index.html"/>
+      <url>/music/index.html</url>
+        <content type="html"><![CDATA[]]></content>
+    </entry>
+
+    <entry>
+      <title>标签</title>
+      <link href="/tags/index.html"/>
+      <url>/tags/index.html</url>
+        <content type="html"><![CDATA[]]></content>
+    </entry>
+
+</search>

@@ -1,0 +1,101 @@
+# Hexo Configuration
+# Docs: https://hexo.io/docs/configuration.html
+
+# Site
+title: qixingovo-blog
+subtitle: ''
+description: ''
+keywords:
+author: qixingovo
+language: zh-CN
+timezone: 'Asia/Shanghai'
+
+# URL
+url: https://www.qixingovo.cn
+root: /
+permalink: :year/:month/:day/:title/
+permalink_defaults:
+pretty_urls:
+  trailing_index: true
+  trailing_html: true
+
+# Directory
+source_dir: source
+public_dir: ../qixingovo.github.io
+tag_dir: tags
+archive_dir: archives
+category_dir: categories
+code_dir: downloads/code
+i18n_dir: :lang
+skip_render:
+  - 'css/**'
+  - 'js/**'
+  - 'img/**'
+  - 'live2dw/**'
+
+# Writing
+new_post_name: :title.md
+default_layout: post
+titlecase: false
+external_link:
+  enable: true
+  field: site
+  exclude: ''
+filename_case: 1
+render_drafts: false
+post_asset_folder: false
+relative_link: false
+future: true
+syntax_highlighter: highlight.js
+highlight:
+  line_number: true
+  auto_detect: false
+  tab_replace: ''
+  wrap: true
+  hljs: false
+prismjs:
+  preprocess: true
+  line_number: true
+  tab_replace: ''
+
+# Home page setting
+index_generator:
+  path: ''
+  per_page: 10
+  order_by: -date
+
+# Category & Tag
+default_category: uncategorized
+category_map:
+  前端: 前端
+  后端: 后端
+  工具: 工具
+  随笔: 随笔
+  博客说明: 博客说明
+tag_map:
+
+# Metadata elements
+meta_generator: true
+
+# Date / Time format
+date_format: YYYY-MM-DD
+time_format: HH:mm:ss
+updated_option: mtime
+
+# Pagination
+per_page: 10
+pagination_dir: page
+
+# Include / Exclude files
+include:
+exclude:
+ignore:
+
+# Extensions
+theme: butterfly
+
+# Deployment
+deploy:
+  type: git
+  repo: https://github.com/qixingovo/qixingovo.github.io
+  branch: main
