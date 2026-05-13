@@ -247,5 +247,18 @@ inject:
   bottom:
     - <script src="/js/custom.js"></script>
 
-# CDN (disable — use local files)
-# Use local assets where possible
+# CDN — 本地托管所有第三方资源
+CDN:
+  third_party_provider: jsdelivr
+  option:
+    lazyload: /lib/lazyload.iife.min.js
+    instantpage: /lib/instantpage.min.js
+    pangu: /lib/pangu.min.js
+    fancybox: /lib/fancybox.umd.min.js
+    fancybox_css: /lib/fancybox.min.css
+    snackbar: /lib/snackbar.min.js
+    snackbar_css: /lib/snackbar.min.css
+    sharejs: /lib/social-share.min.js
+    sharejs_css: /lib/share.min.css
+    fontawesome: /lib/fontawesome/css/all.min.css
+    canvas_nest: /lib/canvas-nest.min.js
