@@ -237,7 +237,7 @@ wordcount:
 # Footer runtime
 runtimeshow:
   enable: true
-  runtime_date: 2025-01-01
+  publish_date: 2025-01-01
 
 # Inject custom CSS/JS
 inject:
