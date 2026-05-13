@@ -11,7 +11,9 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npx hexo generate --output public
+      - run: |
+          sed -i 's|public_dir: ../qixingovo.github.io|public_dir: public|' _config.yml
+          npx hexo generate
       - name: Deploy to ECS
         uses: appleboy/scp-action@v0.1.7
         with:
