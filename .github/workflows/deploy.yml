@@ -23,4 +23,4 @@ jobs:
           source: "public/*"
           target: "/var/www/qixingovo.github.io/"
           strip_components: 1
-          rm: true
+          rm: false
