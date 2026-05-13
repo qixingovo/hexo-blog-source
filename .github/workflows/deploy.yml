@@ -11,7 +11,7 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npx hexo generate
+      - run: npx hexo generate --output public
       - name: Deploy to ECS
         uses: appleboy/scp-action@v0.1.7
         with:
