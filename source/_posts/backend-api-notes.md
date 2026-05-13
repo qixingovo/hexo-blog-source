@@ -5,7 +5,7 @@ updated: 2026-04-15 08:00:00
 categories:
   - 后端
 tags:
-  - API
+  - api
 cover: /img/default_cover/p4.jpg
 description: 统一错误码、分页与幂等的复盘，含具体代码示例。
 ---

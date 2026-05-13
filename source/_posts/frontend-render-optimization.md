@@ -5,7 +5,7 @@ updated: 2026-04-16 08:00:00
 categories:
   - 前端
 tags:
-  - React
+  - react
 cover: /img/default_cover/p3.jpg
 description: 一次首屏抖动排查与优化记录，含组件拆分、懒加载、memo 代码示例。
 ---
