@@ -110,7 +110,7 @@ footer:
     enable: true
     since: 2025
   custom_text:
-  copyright: true
+  copyright: false
 
 # Aside
 aside:
