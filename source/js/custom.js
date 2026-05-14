@@ -279,8 +279,8 @@
           '</a>' +
         '</div>' +
         // ClockCard (clock-card.tsx)
-        '<div style="display:flex;gap:36px;flex-wrap:wrap;justify-content:center;max-width:500px;width:100%">' +
-          '<div id="clock-card" class="card-stacked card-in card-hover" style="animation-delay:0.22s;flex:1;min-width:140px">' +
+        '<div class="ref-clock-cal-row">' +
+          '<div id="clock-card" class="card-stacked card-in card-hover" style="animation-delay:0.22s">' +
             '<div class="clock-display">' +
               segDigit(parseInt(hh[0])) +
               segDigit(parseInt(hh[1])) +
@@ -290,7 +290,7 @@
             '</div>' +
           '</div>' +
           // CalendarCard (calendar-card.tsx)
-          '<div id="calendar-card" class="card-stacked card-in card-hover" style="animation-delay:0.28s;flex:2;min-width:200px">' +
+          '<div id="calendar-card" class="card-stacked card-in card-hover" style="animation-delay:0.28s">' +
             '<h3 class="calendar-header">' + calDateStr + '</h3>' +
             '<div class="calendar-grid">' +
               calHeaderHTML +

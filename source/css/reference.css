@@ -3,6 +3,9 @@
    theme.css + globals.css + component styles → pure CSS
    ============================================================ */
 
+/* === Google Font: Averia Gruesa Libre (from reference blog) === */
+@import url('https://fonts.googleapis.com/css2?family=Averia+Gruesa+Libre&display=swap');
+
 /* === Design Tokens (from theme.css) === */
 [data-layout="reference"] {
   --color-primary: #334f52;
@@ -90,6 +93,8 @@
   box-shadow: 0 40px 50px -32px rgba(0,0,0,0.05), inset 0 0 20px rgba(255,255,255,0.25);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 /* === text-linear (from globals.css) === */
@@ -124,13 +129,25 @@
 /* ============================================================
    REFERENCE HOMEPAGE CONTAINER (stacked cards)
    ============================================================ */
+[data-layout="reference"] #content-inner {
+  padding-top: 0 !important;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+[data-layout="reference"] #recent-posts {
+  max-width: 100%;
+}
+
 [data-layout="reference"] #reference-home {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 36px;
-  padding-top: 48px;
-  padding-bottom: 80px;
+  padding: 60px 20px 80px;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 /* ============================================================
@@ -197,7 +214,6 @@
    ============================================================ */
 [data-layout="reference"] #social-buttons {
   display: flex;
-  flex-direction: row-reverse;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
@@ -235,11 +251,24 @@
 }
 
 /* ============================================================
-   ClockCard (from clock-card.tsx) — 7-segment SVG
-   <Card className='p-2'><div bg-secondary/20 rounded-40px><SVG digits/></div></Card>
+   ClockCard + CalendarCard row
    ============================================================ */
+[data-layout="reference"] .ref-clock-cal-row {
+  display: flex;
+  gap: 36px;
+  width: 100%;
+  max-width: 100%;
+}
 [data-layout="reference"] #clock-card {
   padding: 8px;
+  width: 180px;
+  flex-shrink: 0;
+}
+[data-layout="reference"] #calendar-card {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
 }
 [data-layout="reference"] #clock-card .clock-display {
   background: rgba(123,136,142,0.2);
@@ -265,13 +294,8 @@
 }
 
 /* ============================================================
-   CalendarCard (from calendar-card.tsx)
-   <Card><h3>date</h3><ul grid-cols-7>...</ul></Card>
+   CalendarCard innards (from calendar-card.tsx)
    ============================================================ */
-[data-layout="reference"] #calendar-card {
-  display: flex;
-  flex-direction: column;
-}
 [data-layout="reference"] #calendar-card .calendar-header {
   font-size: 14px;
   color: var(--color-secondary);
@@ -477,7 +501,11 @@
     width: 96px;
     height: 96px;
   }
-  [data-layout="reference"] #clock-card .clock-display {
-    padding: 12px 8px;
+  [data-layout="reference"] #clock-card {
+    width: 100%;
+  }
+  [data-layout="reference"] .ref-clock-cal-row {
+    flex-direction: column;
+    gap: 24px;
   }
 }
