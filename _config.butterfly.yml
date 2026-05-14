@@ -165,6 +165,24 @@ busuanzi:
   site_pv: true
   page_pv: true
 
+# Comments
+comments:
+  use: Waline
+  lazyload: true
+  count: true
+
+waline:
+  serverURL: https://www.qixingovo.cn/waline
+  lang: zh-CN
+  emoji: true
+  dark: auto
+  meta: ['nick', 'mail', 'link']
+  requiredMeta: ['nick', 'mail']
+  login: enable
+  wordLimit: 0
+  pageSize: 10
+  imageUploader: false
+
 # Translate
 translate:
   enable: true
