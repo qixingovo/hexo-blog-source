@@ -45,8 +45,15 @@
   max-width: 100%;
 }
 
-[data-layout="reference"] #aside-content {
+[data-layout="reference"] #aside-content .card-widget,
+[data-layout="reference"] #aside-content .aside-list {
   display: none !important;
+}
+[data-layout="reference"] #rightside {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  z-index: 100;
 }
 
 [data-layout="reference"] #nav {

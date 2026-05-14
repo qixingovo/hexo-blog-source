@@ -528,9 +528,6 @@
   // 7. LAYOUT TOGGLE BUTTON
   // ============================================================
   function initLayoutToggle() {
-    var rightside = document.getElementById('rightside');
-    if (!rightside) return;
-
     var isRef = layout === 'reference';
     var btn = document.createElement('div');
     btn.id = 'layout-toggle';
@@ -541,7 +538,12 @@
       localStorage.setItem('blog-layout', next);
       location.reload();
     });
-    rightside.insertBefore(btn, rightside.firstChild);
+    var rightside = document.getElementById('rightside');
+    if (rightside) {
+      rightside.insertBefore(btn, rightside.firstChild);
+    } else {
+      document.body.appendChild(btn);
+    }
   }
 
   // ============================================================
