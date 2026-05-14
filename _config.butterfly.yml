@@ -212,7 +212,7 @@ snackbar:
 
 # Background Animation
 canvas_nest:
-  enable: false
+  enable: true
   color: '0,0,255'
   opacity: 0.7
   zIndex: -1
@@ -221,7 +221,7 @@ canvas_nest:
 
 # Typewriter subtitle
 subtitle:
-  enable: false
+  enable: true
   effect: true
   source: false
   sub:
