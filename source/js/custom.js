@@ -152,86 +152,177 @@
   }
 
   // ============================================================
-  // 2. REFERENCE MODE — Profile Card
+  // 2. REFERENCE MODE — Homepage Builder
   // ============================================================
-  function initReferenceProfile() {
+  function initReferenceHomepage() {
     if (!isHome) return;
     var container = document.getElementById('recent-posts');
     if (!container) return;
 
-    var hour = new Date().getHours();
-    var greeting = hour < 6 ? '夜深了' : hour < 9 ? '早上好' : hour < 12 ? '上午好'
-      : hour < 14 ? '中午好' : hour < 18 ? '下午好' : hour < 22 ? '晚上好' : '夜深了';
-
-    container.insertAdjacentHTML('beforebegin',
-      '<div id="profile-card">' +
-        '<div class="profile-avatar"><img src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'"></div>' +
-        '<p class="profile-greeting">' + greeting + '</p>' +
-        '<h1 class="profile-name">qixingovo</h1>' +
-        '<p class="profile-bio">记录技术成长，分享开发心得</p>' +
-        '<div class="profile-links">' +
-          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="profile-link-item"><i class="fab fa-github"></i><span>GitHub</span></a>' +
-          '<a href="mailto:qixingovo@gmail.com" class="profile-link-item"><i class="fas fa-envelope"></i><span>Email</span></a>' +
-        '</div>' +
-      '</div>');
-  }
-
-  // ============================================================
-  // 3. REFERENCE MODE — Article Cards
-  // ============================================================
-  function initReferenceCards() {
-    if (!isHome) return;
-    var container = document.getElementById('recent-posts');
-    if (!container) return;
-
+    // --- Get post data from Butterfly elements ---
     var items = container.querySelectorAll('.recent-post-item');
-    if (items.length === 0) return;
-
-    var pagination = container.querySelector('#pagination');
-    var pagHTML = pagination ? pagination.outerHTML : '';
-
-    var html = '<div class="cards-grid">';
-    items.forEach(function (item, i) {
+    var posts = [];
+    items.forEach(function (item) {
       var coverEl = item.querySelector('.post_cover img');
       var coverUrl = coverEl ? (coverEl.getAttribute('data-lazy-src') || coverEl.src) : '';
       if (coverUrl && coverUrl.indexOf('data:image') === 0) coverUrl = '';
-
       var titleEl = item.querySelector('.article-title');
       var title = titleEl ? titleEl.textContent.trim() : '';
       var url = titleEl ? titleEl.getAttribute('href') : '';
-
       var dateEl = item.querySelector('.post-meta-date');
       var dateText = dateEl ? dateEl.textContent.replace(/\s+/g, ' ').replace(/发表于\s*/, '').trim() : '';
-
       var catEl = item.querySelector('.article-meta__categories, .article-meta-categories');
       var category = catEl ? catEl.textContent.trim() : '';
-
       var contentEl = item.querySelector('.content');
       var excerpt = '';
       if (contentEl) {
         var t = contentEl.textContent.trim();
         excerpt = t.length > 140 ? t.substring(0, 140) + '...' : t;
       }
-
-      html +=
-        '<article class="post-card" style="--i:' + i + '">' +
-          '<a class="post-card-cover" href="' + url + '">' +
-            (coverUrl
-              ? '<img src="' + coverUrl + '" alt="' + title + '" loading="lazy">'
-              : '<div class="post-card-cover-fb"></div>') +
-          '</a>' +
-          '<div class="post-card-body">' +
-            '<div class="post-card-meta">' +
-              '<span>' + dateText + '</span>' +
-              (category ? '<span class="post-card-cat">' + category + '</span>' : '') +
-            '</div>' +
-            '<a class="post-card-title" href="' + url + '">' + title + '</a>' +
-            '<p class="post-card-excerpt">' + excerpt + '</p>' +
-          '</div>' +
-        '</article>';
+      posts.push({ coverUrl: coverUrl, title: title, url: url, dateText: dateText, category: category, excerpt: excerpt });
     });
-    html += '</div>';
-    container.innerHTML = html + pagHTML;
+
+    var pagination = container.querySelector('#pagination');
+    var pagHTML = pagination ? pagination.outerHTML : '';
+
+    // --- Time-based greeting ---
+    var hour = new Date().getHours();
+    var greeting = hour < 6 ? 'Good Night' : hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : hour < 22 ? 'Good Evening' : 'Good Night';
+
+    // --- Clock ---
+    var now = new Date();
+    var hh = ('0' + now.getHours()).slice(-2);
+    var mm = ('0' + now.getMinutes()).slice(-2);
+
+    // --- Calendar ---
+    var year = now.getFullYear();
+    var month = now.getMonth();
+    var today = now.getDate();
+    var currentDayOfWeek = (now.getDay() + 6) % 7; // Monday=0
+    var firstDayOfMonth = new Date(year, month, 1);
+    var firstDayWeekday = (firstDayOfMonth.getDay() + 6) % 7;
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var dayNames = ['\u4e00', '\u4e8c', '\u4e09', '\u56db', '\u4e94', '\u516d', '\u65e5'];
+    var calHeaderHTML = dayNames.map(function (name, i) {
+      return '<div class="calendar-day-name' + (i === currentDayOfWeek ? ' today' : '') + '">' + name + '</div>';
+    }).join('');
+    var calCellsHTML = '';
+    for (var ei = 0; ei < firstDayWeekday; ei++) calCellsHTML += '<div class="calendar-day empty"></div>';
+    for (var d2 = 1; d2 <= daysInMonth; d2++) {
+      calCellsHTML += '<div class="calendar-day' + (d2 === today ? ' today' : '') + '">' + d2 + '</div>';
+    }
+    var dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var calDateStr = year + '/' + (month + 1) + '/' + today + ' ' + dowNames[now.getDay()];
+
+    // --- Latest article (first post) ---
+    var latest = posts.length > 0 ? posts[0] : null;
+    var articleCardHTML = '';
+    if (latest) {
+      articleCardHTML =
+        '<div id="article-card" class="ref-card" style="animation-delay:0.34s">' +
+          '<p class="article-card-label">\u6700\u65b0\u6587\u7ae0</p>' +
+          '<a class="article-card-link" href="' + latest.url + '">' +
+            (latest.coverUrl
+              ? '<img class="article-card-cover" src="' + latest.coverUrl + '" alt="" loading="lazy">'
+              : '<div class="article-card-cover-fb">+</div>') +
+            '<div class="article-card-info">' +
+              '<h3 class="article-card-title">' + latest.title + '</h3>' +
+              (latest.excerpt ? '<p class="article-card-summary">' + latest.excerpt + '</p>' : '') +
+              '<p class="article-card-date">' + latest.dateText + '</p>' +
+            '</div>' +
+          '</a>' +
+        '</div>';
+    }
+
+    // --- Remaining posts grid ---
+    var gridHTML = '';
+    if (posts.length > 1) {
+      gridHTML = '<p class="ref-posts-label">\u6240\u6709\u6587\u7ae0</p><div class="cards-grid">';
+      for (var i = 1; i < posts.length; i++) {
+        var p = posts[i];
+        gridHTML +=
+          '<article class="post-card" style="--i:' + (i - 1) + '">' +
+            '<a class="post-card-cover" href="' + p.url + '">' +
+              (p.coverUrl
+                ? '<img src="' + p.coverUrl + '" alt="' + p.title + '" loading="lazy">'
+                : '<div class="post-card-cover-fb"></div>') +
+            '</a>' +
+            '<div class="post-card-body">' +
+              '<div class="post-card-meta">' +
+                '<span>' + p.dateText + '</span>' +
+                (p.category ? '<span class="post-card-cat">' + p.category + '</span>' : '') +
+              '</div>' +
+              '<a class="post-card-title" href="' + p.url + '">' + p.title + '</a>' +
+              '<p class="post-card-excerpt">' + p.excerpt + '</p>' +
+            '</div>' +
+          '</article>';
+      }
+      gridHTML += '</div>';
+    } else if (posts.length === 0) {
+      gridHTML = '<p class="ref-posts-label">\u6682\u65e0\u6587\u7ae0</p>';
+    }
+
+    // --- Build the full homepage ---
+    var html =
+      '<div id="reference-home">' +
+        // HiCard
+        '<div id="hi-card" class="ref-card" style="animation-delay:0.1s">' +
+          '<img class="hi-avatar" src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'">' +
+          '<p class="hi-greeting">' + greeting + '<br>I\'m <span class="hi-name">qixingovo</span>, Nice to<br>meet you!</p>' +
+        '</div>' +
+        // Social Buttons
+        '<div id="social-buttons">' +
+          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="social-btn social-btn-github" style="animation-delay:0.15s">' +
+            '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>' +
+            '<span>GitHub</span>' +
+          '</a>' +
+          '<a href="mailto:qixingovo@gmail.com" class="social-btn" style="animation-delay:0.18s">' +
+            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>' +
+            '<span>Email</span>' +
+          '</a>' +
+        '</div>' +
+        // Clock + Calendar row
+        '<div style="display:flex;gap:36px;flex-wrap:wrap;justify-content:center;max-width:500px;width:100%">' +
+          '<div id="clock-card" class="ref-card" style="animation-delay:0.22s;flex:1;min-width:140px">' +
+            '<div class="clock-display">' +
+              '<span class="clock-digit">' + hh[0] + '</span>' +
+              '<span class="clock-digit">' + hh[1] + '</span>' +
+              '<span class="clock-colon">:</span>' +
+              '<span class="clock-digit">' + mm[0] + '</span>' +
+              '<span class="clock-digit">' + mm[1] + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div id="calendar-card" class="ref-card" style="animation-delay:0.28s;flex:2;min-width:200px;padding:20px 24px">' +
+            '<p class="calendar-header">' + calDateStr + '</p>' +
+            '<div class="calendar-grid">' +
+              calHeaderHTML +
+              calCellsHTML +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        // Article card (latest)
+        articleCardHTML +
+        // Remaining posts grid
+        gridHTML +
+        // Pagination
+        pagHTML +
+      '</div>';
+
+    container.outerHTML = html;
+
+    // Update clock every 30 seconds
+    setInterval(function () {
+      var n2 = new Date();
+      var h2 = ('0' + n2.getHours()).slice(-2);
+      var m2 = ('0' + n2.getMinutes()).slice(-2);
+      var digits = document.querySelectorAll('#clock-card .clock-digit');
+      if (digits.length >= 4) {
+        digits[0].textContent = h2[0];
+        digits[1].textContent = h2[1];
+        digits[2].textContent = m2[0];
+        digits[3].textContent = m2[1];
+      }
+    }, 30000);
   }
 
   // ============================================================
@@ -464,8 +555,7 @@
       document.body.setAttribute('data-layout', 'reference');
       if (isHome) {
         initBubbles();
-        initReferenceProfile();
-        initReferenceCards();
+        initReferenceHomepage();
       }
     } else {
       if (isHome) {

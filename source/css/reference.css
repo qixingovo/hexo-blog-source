@@ -1,38 +1,36 @@
 /* ============================================================
-   Reference Mode — YYsuni/2025-blog-public style
+   Reference Mode — YYsuni/2025-blog-public exact style
    Scoped under [data-layout="reference"] on <body>
    ============================================================ */
 
-/* === Override Variables === */
+/* === Override Variables (exact reference blog colors) === */
 [data-layout="reference"] {
-  --brand: #2fcbe7;
-  --brand-secondary: #eec25e;
-  --brand-gradient: linear-gradient(135deg, #2fcbe7 40%, #eec25e 100%);
-  --text-primary: #5B423F;
-  --text-secondary: #8b7667;
-  --bg: #d4e8f3;
-  --card-bg: rgba(255, 255, 255, 0.6);
-  --card-border: rgba(255, 255, 255, 0.8);
+  --brand: #35bfab;
+  --brand-secondary: #1fc9e7;
+  --brand-gradient: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, #35bfab 40%, #1fc9e7);
+  --text-primary: #334f52;
+  --text-secondary: #7b888e;
+  --bg: #eeeeee;
+  --card-bg: rgba(255, 255, 255, 0.4);
+  --card-border: #fff;
   --card-shadow: 0 40px 50px -32px rgba(0, 0, 0, 0.05);
-  --card-shadow-hover: 0 48px 56px -32px rgba(0, 0, 0, 0.08);
-  --card-highlight: inset 0 0 20px rgba(255, 255, 255, 0.25);
+  --card-inner-highlight: inset 0 0 20px rgba(255, 255, 255, 0.25);
   --card-blur: blur(4px);
   --card-radius: 40px;
-  --font-sans: 'PingFang SC', -apple-system, 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-sans: 'PingFang SC', -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif, 'Microsoft YaHei', Arial;
+  --spacing: 36px;
 }
 
 [data-layout="reference"][data-theme="dark"] {
-  --brand: #2a48f3;
-  --brand-secondary: #51d0b9;
-  --brand-gradient: linear-gradient(135deg, #2a48f3 40%, #51d0b9 100%);
+  --brand: #35bfab;
+  --brand-secondary: #1fc9e7;
   --text-primary: #e6e8e8;
   --text-secondary: #acadae;
-  --bg: #0a051f;
+  --bg: #1a1a1a;
   --card-bg: rgba(255, 255, 255, 0.05);
   --card-border: rgba(255, 255, 255, 0.08);
   --card-shadow: 0 40px 50px -32px rgba(0, 0, 0, 0.3);
-  --card-shadow-hover: 0 48px 56px -32px rgba(0, 0, 0, 0.4);
-  --card-highlight: inset 0 0 20px rgba(255, 255, 255, 0.04);
+  --card-inner-highlight: inset 0 0 20px rgba(255, 255, 255, 0.04);
 }
 
 /* === Global Overrides === */
@@ -48,14 +46,22 @@
 
 [data-layout="reference"] #content-inner {
   padding-top: 0 !important;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 /* === Navigation === */
+[data-layout="reference"] #nav {
+  background: var(--card-bg) !important;
+  backdrop-filter: var(--card-blur);
+  -webkit-backdrop-filter: var(--card-blur);
+  border-bottom: 1px solid var(--card-border);
+}
 [data-layout="reference"] #nav .site-page { color: var(--text-secondary); }
 [data-layout="reference"] #nav .site-page:hover { color: var(--brand); }
 
 [data-layout="reference"] #site-title {
-  background: var(--brand-gradient);
+  background: linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -70,88 +76,228 @@
 [data-layout="reference"] ::-webkit-scrollbar-thumb { background: var(--brand) !important; }
 
 /* ============================================================
-   PROFILE CARD
+   TEXT-LINEAR (gradient text utility matching reference blog)
    ============================================================ */
-[data-layout="reference"] #profile-card {
+[data-layout="reference"] .text-linear {
+  background: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   CARD BASE — matches reference blog .card utility
+   ============================================================ */
+[data-layout="reference"] .ref-card {
   background: var(--card-bg);
   backdrop-filter: var(--card-blur);
   -webkit-backdrop-filter: var(--card-blur);
   border: 1px solid var(--card-border);
   border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow), var(--card-highlight);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 48px 32px 40px;
-  margin-bottom: 40px;
+  box-shadow: var(--card-shadow), var(--card-inner-highlight);
   opacity: 0;
   transform: scale(0.6);
-  animation: refCardIn 0.6s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: refCardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-layout="reference"] .ref-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 48px 56px -32px rgba(0, 0, 0, 0.08), var(--card-inner-highlight);
+}
+[data-layout="reference"] .ref-card:active {
+  transform: scale(0.98);
 }
 
-[data-layout="reference"] .profile-avatar {
-  width: 96px; height: 96px;
-  border-radius: 50%; overflow: hidden;
-  margin-bottom: 20px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.1);
-}
-[data-layout="reference"] .profile-avatar img {
-  width: 100%; height: 100%; object-fit: cover;
-}
-
-[data-layout="reference"] .profile-greeting {
-  font-size: 20px; color: var(--text-secondary);
-  margin: 0 0 6px; font-weight: 400;
-}
-
-[data-layout="reference"] .profile-name {
-  font-size: 34px; font-weight: 800; letter-spacing: -0.02em;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 8px;
-}
-
-[data-layout="reference"] .profile-bio {
-  font-size: 15px; color: var(--text-secondary);
-  margin: 0 0 28px; line-height: 1.5;
-}
-
-[data-layout="reference"] .profile-links {
-  display: flex; flex-wrap: wrap;
-  justify-content: center; gap: 12px;
-}
-
-[data-layout="reference"] .profile-link-item {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 9px 20px; border-radius: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  font-size: 14px; font-weight: 500;
-  color: var(--text-primary); text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-[data-layout="reference"] .profile-link-item:hover {
-  transform: scale(1.04);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-  color: var(--brand);
+@keyframes refCardIn {
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* ============================================================
-   ARTICLE CARDS
+   REFERENCE HOMEPAGE CONTAINER
    ============================================================ */
+[data-layout="reference"] #reference-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing);
+  padding-top: 40px;
+  padding-bottom: 80px;
+}
+
+/* ============================================================
+   HI-CARD (Profile Card)
+   ============================================================ */
+[data-layout="reference"] #hi-card {
+  position: relative;
+  text-align: center;
+  padding: 48px 48px 40px;
+  max-width: 380px;
+  width: 100%;
+}
+[data-layout="reference"] #hi-card .hi-avatar {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  box-shadow: 0 16px 32px -5px #E2D9CE;
+  margin: 0 auto 16px;
+  display: block;
+  object-fit: cover;
+}
+[data-layout="reference"] #hi-card .hi-greeting {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+[data-layout="reference"] #hi-card .hi-name {
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   SOCIAL BUTTONS ROW
+   ============================================================ */
+[data-layout="reference"] #social-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  max-width: 380px;
+}
+[data-layout="reference"] .social-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  backdrop-filter: var(--card-blur);
+  -webkit-backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  opacity: 0;
+  transform: scale(0.6);
+  animation: refCardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  cursor: pointer;
+}
+[data-layout="reference"] .social-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  color: var(--brand);
+}
+[data-layout="reference"] .social-btn svg,
+[data-layout="reference"] .social-btn img {
+  width: 24px; height: 24px;
+}
+[data-layout="reference"] .social-btn-github {
+  background: #070707;
+  color: #fff;
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.1), inset 0 0 12px rgba(255,255,255,0.4);
+}
+[data-layout="reference"] .social-btn-github:hover {
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2), inset 0 0 12px rgba(255,255,255,0.4);
+}
+
+/* ============================================================
+   ARTICLE CARD (single latest article)
+   ============================================================ */
+[data-layout="reference"] #article-card {
+  max-width: 380px;
+  width: 100%;
+  padding: 24px;
+}
+[data-layout="reference"] #article-card .article-card-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+[data-layout="reference"] #article-card .article-card-link {
+  display: flex;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+[data-layout="reference"] #article-card .article-card-link:hover {
+  opacity: 0.8;
+}
+[data-layout="reference"] #article-card .article-card-cover {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.06);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+[data-layout="reference"] #article-card .article-card-cover-fb {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+[data-layout="reference"] #article-card .article-card-info {
+  flex: 1;
+  min-width: 0;
+}
+[data-layout="reference"] #article-card .article-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0 0 4px;
+}
+[data-layout="reference"] #article-card .article-card-summary {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0 0 4px;
+  line-height: 1.5;
+}
+[data-layout="reference"] #article-card .article-card-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ============================================================
+   ALL POSTS GRID (below the main cards)
+   ============================================================ */
+[data-layout="reference"] .ref-posts-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
 [data-layout="reference"] .cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 28px;
+  gap: var(--spacing);
+  width: 100%;
+  max-width: 800px;
   padding-bottom: 40px;
 }
-
 [data-layout="reference"] .post-card {
   background: var(--card-bg);
   backdrop-filter: var(--card-blur);
@@ -159,23 +305,20 @@
   border: 1px solid var(--card-border);
   border-radius: var(--card-radius);
   overflow: hidden;
-  box-shadow: var(--card-shadow), var(--card-highlight);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--card-shadow), var(--card-inner-highlight);
   opacity: 0;
   transform: scale(0.6);
   animation: refCardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--i, 0) * 0.08s + 0.25s);
+  animation-delay: calc(var(--i, 0) * 0.08s + 0.3s);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 [data-layout="reference"] .post-card:hover {
   transform: scale(1.02);
-  box-shadow: var(--card-shadow-hover), var(--card-highlight);
+  box-shadow: 0 48px 56px -32px rgba(0,0,0,0.08), var(--card-inner-highlight);
 }
-
 [data-layout="reference"] .post-card-cover {
-  display: block; width: 100%; height: 200px;
-  overflow: hidden; background: var(--brand-gradient);
+  display: block; width: 100%; height: 180px;
+  overflow: hidden;
 }
 [data-layout="reference"] .post-card-cover img {
   width: 100%; height: 100%; object-fit: cover;
@@ -186,13 +329,11 @@
 }
 [data-layout="reference"] .post-card-cover-fb {
   width: 100%; height: 100%;
-  background: var(--brand-gradient);
+  background: linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
 }
-
 [data-layout="reference"] .post-card-body {
   padding: 22px 26px 26px;
 }
-
 [data-layout="reference"] .post-card-meta {
   display: flex; align-items: center; flex-wrap: wrap;
   gap: 10px; font-size: 13px; color: var(--text-secondary);
@@ -201,7 +342,6 @@
 [data-layout="reference"] .post-card-cat {
   color: var(--brand); font-weight: 500;
 }
-
 [data-layout="reference"] .post-card-title {
   display: block; font-size: 17px; font-weight: 700;
   line-height: 1.45; color: var(--text-primary);
@@ -211,7 +351,6 @@
   transition: color 0.2s;
 }
 [data-layout="reference"] .post-card-title:hover { color: var(--brand); }
-
 [data-layout="reference"] .post-card-excerpt {
   font-size: 14px; line-height: 1.7;
   color: var(--text-secondary); margin: 0;
@@ -219,9 +358,116 @@
   -webkit-box-orient: vertical; overflow: hidden;
 }
 
-/* === Card Animation === */
-@keyframes refCardIn {
-  to { opacity: 1; transform: scale(1); }
+/* ============================================================
+   CLOCK CARD (7-segment style)
+   ============================================================ */
+[data-layout="reference"] #clock-card {
+  max-width: 200px;
+  width: 100%;
+  padding: 12px;
+}
+[data-layout="reference"] #clock-card .clock-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(0,0,0,0.03);
+  border-radius: var(--card-radius);
+  padding: 16px 12px;
+}
+[data-layout="reference"] .clock-digit {
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.03);
+  border-radius: 8px;
+  padding: 4px 8px;
+  line-height: 1;
+}
+[data-layout="reference"] .clock-colon {
+  font-size: 24px;
+  color: var(--text-secondary);
+  padding: 0 2px;
+}
+
+/* ============================================================
+   CALENDAR CARD
+   ============================================================ */
+[data-layout="reference"] #calendar-card {
+  max-width: 260px;
+  width: 100%;
+}
+[data-layout="reference"] #calendar-card .calendar-header {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+[data-layout="reference"] #calendar-card .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+  font-size: 13px;
+}
+[data-layout="reference"] #calendar-card .calendar-day-name {
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 4px 0;
+}
+[data-layout="reference"] #calendar-card .calendar-day-name.today {
+  color: var(--brand);
+}
+[data-layout="reference"] #calendar-card .calendar-day {
+  padding: 6px 0;
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+[data-layout="reference"] #calendar-card .calendar-day.today {
+  background: linear-gradient(to right bottom, var(--brand) 0%, var(--brand-secondary));
+  color: #fff;
+  font-weight: 500;
+}
+[data-layout="reference"] #calendar-card .calendar-day.empty {
+  visibility: hidden;
+}
+
+/* ============================================================
+   SHARE CARD (random recommendation)
+   ============================================================ */
+[data-layout="reference"] #share-card {
+  max-width: 380px;
+  width: 100%;
+}
+[data-layout="reference"] #share-card .share-card-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+[data-layout="reference"] #share-card .share-card-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+[data-layout="reference"] #share-card .share-card-img {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+[data-layout="reference"] #share-card .share-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+[data-layout="reference"] #share-card .share-card-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
 }
 
 /* === Sidebar Widgets === */
@@ -248,7 +494,7 @@
   border: 1px solid rgba(0,0,0,0.06);
 }
 [data-layout="reference"] code:not([class]) {
-  background: rgba(47,203,231,0.08); color: var(--brand);
+  background: rgba(53,191,171,0.08); color: var(--brand);
   padding: 2px 6px; border-radius: 6px; font-size: 0.9em;
 }
 
@@ -272,7 +518,7 @@
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow), var(--card-highlight);
+  box-shadow: var(--card-shadow), var(--card-inner-highlight);
 }
 
 /* === Layout Toggle Button === */
@@ -281,29 +527,24 @@
   align-items: center;
   justify-content: center;
   width: 35px; height: 35px;
-  border-radius: 8px;
-  background: var(--glass-card-bg);
-  backdrop-filter: var(--glass-card-blur);
-  -webkit-backdrop-filter: var(--glass-card-blur);
-  border: 1px solid var(--glass-card-border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  backdrop-filter: var(--card-blur);
+  -webkit-backdrop-filter: var(--card-blur);
+  border: 1px solid var(--card-border);
   cursor: pointer;
-  font-size: 14px; color: var(--text-highlight-color);
+  font-size: 14px; color: var(--text-primary);
   transition: all 0.2s ease;
   margin-bottom: 4px;
   line-height: 1;
+  box-shadow: var(--card-shadow);
 }
 #layout-toggle:hover {
-  background: var(--aurora-c1);
+  background: var(--brand);
   color: #fff;
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
-[data-layout="reference"] #layout-toggle {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-}
 [data-layout="reference"] #layout-toggle:hover {
   background: var(--brand);
   color: #fff;
@@ -311,16 +552,28 @@
 
 /* === Responsive === */
 @media screen and (max-width: 768px) {
+  [data-layout="reference"] #reference-home {
+    gap: 24px;
+    padding-top: 24px;
+  }
+  [data-layout="reference"] #hi-card {
+    padding: 36px 24px 32px;
+    max-width: 100%;
+  }
+  [data-layout="reference"] #hi-card .hi-avatar {
+    width: 96px; height: 96px;
+  }
+  [data-layout="reference"] #hi-card .hi-greeting { font-size: 20px; }
+  [data-layout="reference"] #hi-card .hi-name { font-size: 28px; }
   [data-layout="reference"] .cards-grid {
-    grid-template-columns: 1fr; gap: 18px;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    max-width: 100%;
   }
-  [data-layout="reference"] #profile-card {
-    padding: 36px 24px 32px; margin-bottom: 28px;
-  }
-  [data-layout="reference"] .profile-name { font-size: 28px; }
-  [data-layout="reference"] .profile-greeting { font-size: 17px; }
   [data-layout="reference"] .post-card-cover { height: 160px; }
   [data-layout="reference"] .post-card-body { padding: 18px 20px 22px; }
   [data-layout="reference"] .post-card-title { font-size: 15px; }
   [data-layout="reference"] #content-inner { padding: 0 8px !important; }
+  [data-layout="reference"] #article-card { max-width: 100%; }
+  [data-layout="reference"] #social-buttons { max-width: 100%; }
 }
