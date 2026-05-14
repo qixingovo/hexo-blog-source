@@ -244,6 +244,7 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/var.css">
     - <link rel="stylesheet" href="/css/custom.css">
+    - <link rel="stylesheet" href="/css/reference.css">
   bottom:
     - <script src="/js/custom.js"></script>
 
