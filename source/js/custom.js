@@ -152,14 +152,14 @@
   }
 
   // ============================================================
-  // 2. REFERENCE MODE — Homepage Builder
+  // 2. REFERENCE MODE — Homepage (transplanted from page.tsx)
   // ============================================================
   function initReferenceHomepage() {
     if (!isHome) return;
     var container = document.getElementById('recent-posts');
     if (!container) return;
 
-    // --- Get post data from Butterfly elements ---
+    // Gather post data from Butterfly elements
     var items = container.querySelectorAll('.recent-post-item');
     var posts = [];
     items.forEach(function (item) {
@@ -171,59 +171,88 @@
       var url = titleEl ? titleEl.getAttribute('href') : '';
       var dateEl = item.querySelector('.post-meta-date');
       var dateText = dateEl ? dateEl.textContent.replace(/\s+/g, ' ').replace(/发表于\s*/, '').trim() : '';
-      var catEl = item.querySelector('.article-meta__categories, .article-meta-categories');
-      var category = catEl ? catEl.textContent.trim() : '';
       var contentEl = item.querySelector('.content');
       var excerpt = '';
       if (contentEl) {
         var t = contentEl.textContent.trim();
         excerpt = t.length > 140 ? t.substring(0, 140) + '...' : t;
       }
-      posts.push({ coverUrl: coverUrl, title: title, url: url, dateText: dateText, category: category, excerpt: excerpt });
+      posts.push({ coverUrl: coverUrl, title: title, url: url, dateText: dateText, excerpt: excerpt });
     });
 
-    // --- Time-based greeting ---
-    var hour = new Date().getHours();
-    var greeting = hour < 6 ? 'Good Night' : hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : hour < 22 ? 'Good Evening' : 'Good Night';
-
-    // --- Clock ---
+    // === Time (for greeting + clock) ===
     var now = new Date();
-    var hh = ('0' + now.getHours()).slice(-2);
+    var hour = now.getHours();
+    var greeting = hour < 6 ? 'Good Night' : hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : hour < 22 ? 'Good Evening' : 'Good Night';
+    var hh = ('0' + hour).slice(-2);
     var mm = ('0' + now.getMinutes()).slice(-2);
 
-    // --- Calendar ---
+    // === Calendar data ===
     var year = now.getFullYear();
     var month = now.getMonth();
     var today = now.getDate();
-    var currentDayOfWeek = (now.getDay() + 6) % 7; // Monday=0
+    var currentDayOfWeek = (now.getDay() + 6) % 7;
     var firstDayOfMonth = new Date(year, month, 1);
     var firstDayWeekday = (firstDayOfMonth.getDay() + 6) % 7;
     var daysInMonth = new Date(year, month + 1, 0).getDate();
-    var dayNames = ['\u4e00', '\u4e8c', '\u4e09', '\u56db', '\u4e94', '\u516d', '\u65e5'];
+    var dayNames = ['一', '二', '三', '四', '五', '六', '日'];
+    var dowNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var calDateStr = year + '/' + (month + 1) + '/' + today + ' ' + dowNames[now.getDay()];
     var calHeaderHTML = dayNames.map(function (name, i) {
       return '<div class="calendar-day-name' + (i === currentDayOfWeek ? ' today' : '') + '">' + name + '</div>';
     }).join('');
     var calCellsHTML = '';
-    for (var ei = 0; ei < firstDayWeekday; ei++) calCellsHTML += '<div class="calendar-day empty"></div>';
-    for (var d2 = 1; d2 <= daysInMonth; d2++) {
-      calCellsHTML += '<div class="calendar-day' + (d2 === today ? ' today' : '') + '">' + d2 + '</div>';
+    for (var ei = 0; ei < firstDayWeekday; ei++) calCellsHTML += '<div></div>';
+    for (var d = 1; d <= daysInMonth; d++) {
+      calCellsHTML += '<div class="calendar-day' + (d === today ? ' today' : '') + '">' + d + '</div>';
     }
-    var dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    var calDateStr = year + '/' + (month + 1) + '/' + today + ' ' + dowNames[now.getDay()];
 
-    // --- Latest article (first post) ---
+    // === 7-segment SVG digit (from clock-card.tsx SevenSegmentDigit) ===
+    function segDigit(val, cls) {
+      var segs = [
+        [true,true,true,true,true,true,false],  // 0
+        [false,true,true,false,false,false,false], // 1
+        [true,true,false,true,true,false,true],  // 2
+        [true,true,true,true,false,false,true],  // 3
+        [false,true,true,false,false,true,true], // 4
+        [true,false,true,true,false,true,true],  // 5
+        [true,false,true,true,true,true,true],   // 6
+        [true,true,true,false,false,false,false],// 7
+        [true,true,true,true,true,true,true],    // 8
+        [true,true,true,true,false,true,true]    // 9
+      ];
+      var s = segs[val] || segs[0];
+      var active = 'var(--color-primary)';
+      var inactive = 'rgba(0,0,0,0.05)';
+      return '<svg class="' + (cls || '') + '" width="29" height="52" viewBox="0 0 29 52" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M4.20248 3.49482C2.82797 2.27303 3.69218 0 5.53121 0H22.6867C24.5522 0 25.4019 2.32821 23.975 3.52982L23.5791 3.86316C23.2186 4.16681 22.7623 4.33333 22.2909 4.33333H5.90621C5.41638 4.33333 4.94359 4.15358 4.57748 3.82815L4.20248 3.49482Z" fill="' + (s[0] ? active : inactive) + '"/>' +
+        '<path d="M3.85122 24.13C4.16644 23.936 4.5293 23.8333 4.89942 23.8333H23.3022C23.6503 23.8333 23.9923 23.9242 24.2945 24.0969L24.5862 24.2635C25.9298 25.0313 25.9298 26.9687 24.5862 27.7365L24.2945 27.9032C23.9923 28.0758 23.6503 28.1667 23.3022 28.1667H4.89942C4.5293 28.1667 4.16644 28.064 3.85122 27.87L3.58039 27.7033C2.31131 26.9224 2.31132 25.0777 3.58039 24.2967L3.85122 24.13Z" fill="' + (s[6] ? active : inactive) + '"/>' +
+        '<path d="M3.06 23.5458C1.7279 24.3784 -8.31295e-08 23.4207 -1.47217e-07 21.8498L-8.06095e-07 5.69981C-8.77526e-07 3.94893 2.09055 3.04323 3.36788 4.24073L3.70121 4.55323C4.10452 4.93133 4.33333 5.45949 4.33333 6.01231L4.33333 21.6415C4.33333 22.3311 3.97809 22.972 3.39333 23.3375L3.06 23.5458Z" fill="' + (s[5] ? active : inactive) + '"/>' +
+        '<path d="M24.8497 4.25654C26.1428 3.12502 28.1667 4.04338 28.1667 5.76169L28.1667 21.8498C28.1667 23.4207 26.4388 24.3784 25.1067 23.5458L24.7734 23.3375C24.1886 22.972 23.8334 22.3311 23.8334 21.6415L23.8334 6.05336C23.8334 5.47663 24.0823 4.92798 24.5163 4.54821L24.8497 4.25654Z" fill="' + (s[1] ? active : inactive) + '"/>' +
+        '<path d="M23.9259 48.6321C25.1234 49.9094 24.2177 52 22.4669 52L5.69978 52C3.9489 52 3.04321 49.9094 4.24071 48.6321L4.55321 48.2988C4.9313 47.8955 5.45947 47.6667 6.01228 47.6667L22.1544 47.6667C22.7072 47.6667 23.2353 47.8955 23.6134 48.2988L23.9259 48.6321Z" fill="' + (s[3] ? active : inactive) + '"/>' +
+        '<path d="M25.1862 28.489C26.5194 27.7391 28.1667 28.7025 28.1667 30.2322L28.1667 46.6299C28.1667 48.4117 26.0124 49.3041 24.7525 48.0441L24.4191 47.7108C24.0441 47.3357 23.8334 46.827 23.8334 46.2966L23.8334 30.4197C23.8334 29.6971 24.2231 29.0308 24.8528 28.6765L25.1862 28.489Z" fill="' + (s[2] ? active : inactive) + '"/>' +
+        '<path d="M3.4564 47.7859C2.21509 49.1048 4.23823e-07 48.2263 6.6133e-07 46.4152L2.79423e-06 30.1501C3.00022e-06 28.5793 1.72791 27.6216 3.06 28.4541L3.39333 28.6625C3.9781 29.028 4.33334 29.6689 4.33334 30.3585L4.33333 46.061C4.33333 46.5705 4.13891 47.0607 3.78973 47.4317L3.4564 47.7859Z" fill="' + (s[4] ? active : inactive) + '"/>' +
+        '</svg>';
+    }
+
+    // === Colon separator (from clock-card.tsx Colon) ===
+    function colonHTML() {
+      return '<div class="clock-colon"><div class="clock-colon-dot"></div><div class="clock-colon-dot"></div></div>';
+    }
+
+    // === Latest article (from aritcle-card.tsx) ===
     var latest = posts.length > 0 ? posts[0] : null;
     var articleCardHTML = '';
     if (latest) {
       articleCardHTML =
-        '<div id="article-card" class="ref-card" style="animation-delay:0.34s">' +
-          '<p class="article-card-label">\u6700\u65b0\u6587\u7ae0</p>' +
+        '<div id="article-card" class="card-stacked card-in card-hover" style="animation-delay:0.34s">' +
+          '<h2 class="article-card-label">最新文章</h2>' +
           '<a class="article-card-link" href="' + latest.url + '">' +
             (latest.coverUrl
               ? '<img class="article-card-cover" src="' + latest.coverUrl + '" alt="" loading="lazy">'
               : '<div class="article-card-cover-fb">+</div>') +
             '<div class="article-card-info">' +
-              '<h3 class="article-card-title">' + latest.title + '</h3>' +
+              '<h3 class="article-card-title">' + (latest.title || latest.url) + '</h3>' +
               (latest.excerpt ? '<p class="article-card-summary">' + latest.excerpt + '</p>' : '') +
               '<p class="article-card-date">' + latest.dateText + '</p>' +
             '</div>' +
@@ -231,65 +260,71 @@
         '</div>';
     }
 
+    // === Build homepage (from page.tsx card order) ===
     var html =
       '<div id="reference-home">' +
-        // HiCard
-        '<div id="hi-card" class="ref-card" style="animation-delay:0.1s">' +
-          '<img class="hi-avatar" src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'">' +
-          '<p class="hi-greeting">' + greeting + '<br>I\'m <span class="hi-name">qixingovo</span>, Nice to<br>meet you!</p>' +
+        // HiCard (hi-card.tsx)
+        '<div id="hi-card" class="card-stacked card-in card-hover" style="animation-delay:0.1s">' +
+          '<a href="/about"><img class="hi-avatar" src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'"></a>' +
+          '<h1>' + greeting + '<br>I\'m <span class="text-linear hi-name">qixingovo</span>, Nice to<br>meet you!</h1>' +
         '</div>' +
-        // Social Buttons
+        // SocialButtons (social-buttons.tsx)
         '<div id="social-buttons">' +
-          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="social-btn social-btn-github" style="animation-delay:0.15s">' +
-            '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>' +
+          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="social-btn social-btn-github card-in card-hover" style="animation-delay:0.15s">' +
+            '<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>' +
             '<span>GitHub</span>' +
           '</a>' +
-          '<a href="mailto:qixingovo@gmail.com" class="social-btn" style="animation-delay:0.18s">' +
-            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>' +
-            '<span>Email</span>' +
+          '<a href="mailto:qixingovo@gmail.com" class="social-btn card-in card-hover" style="animation-delay:0.18s">' +
+            '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>' +
           '</a>' +
         '</div>' +
-        // Clock + Calendar row
+        // ClockCard (clock-card.tsx)
         '<div style="display:flex;gap:36px;flex-wrap:wrap;justify-content:center;max-width:500px;width:100%">' +
-          '<div id="clock-card" class="ref-card" style="animation-delay:0.22s;flex:1;min-width:140px">' +
+          '<div id="clock-card" class="card-stacked card-in card-hover" style="animation-delay:0.22s;flex:1;min-width:140px">' +
             '<div class="clock-display">' +
-              '<span class="clock-digit">' + hh[0] + '</span>' +
-              '<span class="clock-digit">' + hh[1] + '</span>' +
-              '<span class="clock-colon">:</span>' +
-              '<span class="clock-digit">' + mm[0] + '</span>' +
-              '<span class="clock-digit">' + mm[1] + '</span>' +
+              segDigit(parseInt(hh[0])) +
+              segDigit(parseInt(hh[1])) +
+              colonHTML() +
+              segDigit(parseInt(mm[0])) +
+              segDigit(parseInt(mm[1])) +
             '</div>' +
           '</div>' +
-          '<div id="calendar-card" class="ref-card" style="animation-delay:0.28s;flex:2;min-width:200px;padding:20px 24px">' +
-            '<p class="calendar-header">' + calDateStr + '</p>' +
+          // CalendarCard (calendar-card.tsx)
+          '<div id="calendar-card" class="card-stacked card-in card-hover" style="animation-delay:0.28s;flex:2;min-width:200px">' +
+            '<h3 class="calendar-header">' + calDateStr + '</h3>' +
             '<div class="calendar-grid">' +
               calHeaderHTML +
               calCellsHTML +
             '</div>' +
           '</div>' +
         '</div>' +
-        // Article card (latest)
+        // ArticleCard (aritcle-card.tsx)
         articleCardHTML +
       '</div>';
 
     container.outerHTML = html;
 
-    // Update clock every 30 seconds
+    // Clock tick every 30s
     setInterval(function () {
       var n2 = new Date();
       var h2 = ('0' + n2.getHours()).slice(-2);
       var m2 = ('0' + n2.getMinutes()).slice(-2);
-      var digits = document.querySelectorAll('#clock-card .clock-digit');
-      if (digits.length >= 4) {
-        digits[0].textContent = h2[0];
-        digits[1].textContent = h2[1];
-        digits[2].textContent = m2[0];
-        digits[3].textContent = m2[1];
+      var clockEl = document.getElementById('clock-card');
+      if (!clockEl) return;
+      var svgs = clockEl.querySelectorAll('svg');
+      if (svgs.length < 4) return;
+      // Replace SVG elements with new digits
+      var children = clockEl.querySelector('.clock-display').children;
+      if (children.length >= 7) {
+        // children: seg, seg, colon, seg, seg
+        children[0].outerHTML = segDigit(parseInt(h2[0]));
+        children[1].outerHTML = segDigit(parseInt(h2[1]));
+        children[3].outerHTML = segDigit(parseInt(m2[0]));
+        children[4].outerHTML = segDigit(parseInt(m2[1]));
       }
     }, 30000);
   }
 
-  // ============================================================
   // 4. AURORA MODE — Featured Posts Hero
   // ============================================================
   function initFeaturedPosts() {

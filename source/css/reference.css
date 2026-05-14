@@ -1,235 +1,332 @@
 /* ============================================================
-   Reference Mode — YYsuni/2025-blog-public exact style
-   Scoped under [data-layout="reference"] on <body>
+   Reference Mode — transplanted from YYsuni/2025-blog-public
+   theme.css + globals.css + component styles → pure CSS
    ============================================================ */
 
-/* === Override Variables (exact reference blog colors) === */
+/* === Design Tokens (from theme.css) === */
 [data-layout="reference"] {
-  --brand: #35bfab;
-  --brand-secondary: #1fc9e7;
-  --brand-gradient: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, #35bfab 40%, #1fc9e7);
-  --text-primary: #334f52;
-  --text-secondary: #7b888e;
-  --bg: #eeeeee;
-  --card-bg: rgba(255, 255, 255, 0.4);
-  --card-border: #fff;
-  --card-shadow: 0 40px 50px -32px rgba(0, 0, 0, 0.05);
-  --card-inner-highlight: inset 0 0 20px rgba(255, 255, 255, 0.25);
-  --card-blur: blur(4px);
-  --card-radius: 40px;
+  --color-primary: #334f52;
+  --color-secondary: #7b888e;
+  --color-brand: #35bfab;
+  --color-brand-secondary: #1fc9e7;
+  --color-bg: #eeeeee;
+  --color-border: #fff;
+  --color-card: rgba(255, 255, 255, 0.4);
+  --color-article: rgba(255, 255, 255, 0.8);
+  --font-averia: 'Averia Gruesa Libre', cursive;
   --font-sans: 'PingFang SC', -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif, 'Microsoft YaHei', Arial;
-  --spacing: 36px;
 }
 
 [data-layout="reference"][data-theme="dark"] {
-  --brand: #35bfab;
-  --brand-secondary: #1fc9e7;
-  --text-primary: #e6e8e8;
-  --text-secondary: #acadae;
-  --bg: #1a1a1a;
-  --card-bg: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --card-shadow: 0 40px 50px -32px rgba(0, 0, 0, 0.3);
-  --card-inner-highlight: inset 0 0 20px rgba(255, 255, 255, 0.04);
+  --color-primary: #e6e8e8;
+  --color-secondary: #acadae;
+  --color-bg: #1a1a1a;
+  --color-card: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.08);
 }
 
-/* === Global Overrides === */
+/* === Global (from globals.css base layer) === */
 [data-layout="reference"] body {
-  background: var(--bg);
+  background: var(--color-bg);
   font-family: var(--font-sans);
-  color: var(--text-primary);
+  color: var(--color-primary);
+  line-height: 1.25;
 }
 
 [data-layout="reference"] #web_bg {
-  background-color: var(--bg) !important;
+  background-color: var(--color-bg) !important;
 }
 
 [data-layout="reference"] #content-inner {
   padding-top: 0 !important;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%;
 }
 
 [data-layout="reference"] #aside-content {
   display: none !important;
 }
 
-/* === Navigation === */
 [data-layout="reference"] #nav {
-  background: var(--card-bg) !important;
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  border-bottom: 1px solid var(--card-border);
+  background: var(--color-card);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-bottom: 1px solid var(--color-border);
 }
-[data-layout="reference"] #nav .site-page { color: var(--text-secondary); }
-[data-layout="reference"] #nav .site-page:hover { color: var(--brand); }
+
+[data-layout="reference"] #nav .site-page { color: var(--color-secondary); }
+[data-layout="reference"] #nav .site-page:hover { color: var(--color-brand); }
 
 [data-layout="reference"] #site-title {
-  background: linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
+  background: linear-gradient(to right bottom, var(--color-brand) 40%, var(--color-brand-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
 }
 
-/* === Links & Accents === */
-[data-layout="reference"] a { color: var(--brand); }
-[data-layout="reference"] a:hover { color: var(--brand-secondary); }
-[data-layout="reference"] ::selection { background: var(--brand); color: #fff; }
-[data-layout="reference"] .article-meta__categories { color: var(--brand); }
-[data-layout="reference"] ::-webkit-scrollbar-thumb { background: var(--brand) !important; }
+[data-layout="reference"] a { color: var(--color-brand); }
+[data-layout="reference"] a:hover { color: var(--color-brand-secondary); }
+[data-layout="reference"] ::selection { background: var(--color-brand); color: #fff; }
+[data-layout="reference"] ::-webkit-scrollbar-thumb { background: var(--color-brand) !important; }
 
-/* ============================================================
-   TEXT-LINEAR (gradient text utility matching reference blog)
-   ============================================================ */
+/* === card utility (from globals.css) === */
+[data-layout="reference"] .card {
+  position: absolute;
+  background: var(--color-card);
+  border-radius: 40px;
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.05), inset 0 0 20px rgba(255,255,255,0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* card when not absolute (stacked layout) */
+[data-layout="reference"] .card-stacked {
+  position: relative;
+  background: var(--color-card);
+  border-radius: 40px;
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.05), inset 0 0 20px rgba(255,255,255,0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* === text-linear (from globals.css) === */
 [data-layout="reference"] .text-linear {
-  background: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
+  background: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, var(--color-brand) 40%, var(--color-brand-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ============================================================
-   CARD BASE — matches reference blog .card utility
-   ============================================================ */
-[data-layout="reference"] .ref-card {
-  background: var(--card-bg);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow), var(--card-inner-highlight);
-  opacity: 0;
-  transform: scale(0.6);
-  animation: refCardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-[data-layout="reference"] .ref-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 48px 56px -32px rgba(0, 0, 0, 0.08), var(--card-inner-highlight);
-}
-[data-layout="reference"] .ref-card:active {
-  transform: scale(0.98);
+/* === bg-linear (from globals.css) === */
+[data-layout="reference"] .bg-linear {
+  background: linear-gradient(to right bottom, var(--color-brand) 0%, var(--color-brand-secondary));
+  color: #fff;
 }
 
-@keyframes refCardIn {
-  to { opacity: 1; transform: scale(1); }
+/* === brand-btn (from globals.css) === */
+[data-layout="reference"] .brand-btn {
+  background: var(--color-brand);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid transparent;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 /* ============================================================
-   REFERENCE HOMEPAGE CONTAINER
+   REFERENCE HOMEPAGE CONTAINER (stacked cards)
    ============================================================ */
 [data-layout="reference"] #reference-home {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing);
-  padding-top: 40px;
+  gap: 36px;
+  padding-top: 48px;
   padding-bottom: 80px;
 }
 
 /* ============================================================
-   HI-CARD (Profile Card)
+   Card entrance animation (from card.tsx motion.div)
+   initial={{ opacity: 0, scale: 0.6 }}
+   animate={{ opacity: 1, scale: 1 }}
    ============================================================ */
-[data-layout="reference"] #hi-card {
-  position: relative;
-  text-align: center;
-  padding: 48px 48px 40px;
-  max-width: 380px;
-  width: 100%;
+@keyframes cardIn {
+  to { opacity: 1; transform: scale(1); }
 }
-[data-layout="reference"] #hi-card .hi-avatar {
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  box-shadow: 0 16px 32px -5px #E2D9CE;
-  margin: 0 auto 16px;
-  display: block;
-  object-fit: cover;
+
+[data-layout="reference"] .card-in {
+  opacity: 0;
+  transform: scale(0.6);
+  animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-[data-layout="reference"] #hi-card .hi-greeting {
-  font-family: var(--font-sans);
-  font-size: 24px;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-  font-weight: 600;
-  line-height: 1.4;
+
+/* hover: scale 1.05, tap: scale 0.95 (from card.tsx whileHover/whileTap) */
+[data-layout="reference"] .card-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
-[data-layout="reference"] #hi-card .hi-name {
-  font-size: 32px;
-  font-weight: 800;
-  background: linear-gradient(to right bottom, #0003 0%, #aaa1), linear-gradient(to right bottom, var(--brand) 40%, var(--brand-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+[data-layout="reference"] .card-hover:hover {
+  transform: scale(1.05);
+}
+[data-layout="reference"] .card-hover:active {
+  transform: scale(0.95);
 }
 
 /* ============================================================
-   SOCIAL BUTTONS ROW
+   HiCard (from hi-card.tsx)
+   <Card><img 120x120 rounded-full /><h1>greeting<br/>I'm <span>name</span>, Nice to<br/>meet you!</h1></Card>
+   ============================================================ */
+[data-layout="reference"] #hi-card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+}
+[data-layout="reference"] #hi-card .hi-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 9999px;
+  margin: 0 auto;
+  display: block;
+  box-shadow: 0 16px 32px -5px #E2D9CE;
+}
+[data-layout="reference"] #hi-card h1 {
+  font-family: var(--font-averia);
+  margin-top: 12px;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--color-primary);
+  font-weight: 400;
+}
+[data-layout="reference"] #hi-card h1 .hi-name {
+  font-size: 32px;
+}
+
+/* ============================================================
+   SocialButtons (from social-buttons.tsx)
+   flex flex-row-reverse items-center gap-3
+   GitHub: bg-[#070707] text-white rounded-xl border p-1.5 size-8
+   Others: card rounded-xl border p-1.5 size-8
    ============================================================ */
 [data-layout="reference"] #social-buttons {
   display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
-  max-width: 380px;
 }
 [data-layout="reference"] .social-btn {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 6px;
+  background: var(--color-card);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--color-primary);
+}
+[data-layout="reference"] .social-btn svg {
+  width: 32px;
+  height: 32px;
+}
+[data-layout="reference"] .social-btn.social-btn-github {
+  background: #070707;
+  color: #fff;
+  font-family: var(--font-averia);
+  font-size: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  border-radius: 12px;
-  background: var(--card-bg);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  border: 1px solid var(--card-border);
-  box-shadow: var(--card-shadow);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  text-decoration: none;
-  opacity: 0;
-  transform: scale(0.6);
-  animation: refCardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
-  cursor: pointer;
-}
-[data-layout="reference"] .social-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  color: var(--brand);
-}
-[data-layout="reference"] .social-btn svg,
-[data-layout="reference"] .social-btn img {
-  width: 24px; height: 24px;
-}
-[data-layout="reference"] .social-btn-github {
-  background: #070707;
-  color: #fff;
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.1), inset 0 0 12px rgba(255,255,255,0.4);
-}
-[data-layout="reference"] .social-btn-github:hover {
-  color: #fff;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.2), inset 0 0 12px rgba(255,255,255,0.4);
+  padding: 6px 12px;
+  box-shadow: inset 0 0 12px rgba(255,255,255,0.4);
 }
 
 /* ============================================================
-   ARTICLE CARD (single latest article)
+   ClockCard (from clock-card.tsx) — 7-segment SVG
+   <Card className='p-2'><div bg-secondary/20 rounded-40px><SVG digits/></div></Card>
+   ============================================================ */
+[data-layout="reference"] #clock-card {
+  padding: 8px;
+}
+[data-layout="reference"] #clock-card .clock-display {
+  background: rgba(123,136,142,0.2);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 16px 12px;
+  cursor: pointer;
+}
+[data-layout="reference"] .clock-colon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+[data-layout="reference"] .clock-colon-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-primary);
+}
+
+/* ============================================================
+   CalendarCard (from calendar-card.tsx)
+   <Card><h3>date</h3><ul grid-cols-7>...</ul></Card>
+   ============================================================ */
+[data-layout="reference"] #calendar-card {
+  display: flex;
+  flex-direction: column;
+}
+[data-layout="reference"] #calendar-card .calendar-header {
+  font-size: 14px;
+  color: var(--color-secondary);
+  margin: 0 0 12px;
+}
+[data-layout="reference"] #calendar-card .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  font-size: 14px;
+  flex: 1;
+}
+[data-layout="reference"] #calendar-card .calendar-day-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: var(--color-secondary);
+  padding: 4px 0;
+}
+[data-layout="reference"] #calendar-card .calendar-day-name.today {
+  color: var(--color-brand);
+}
+[data-layout="reference"] #calendar-card .calendar-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 4px 0;
+  color: var(--color-primary);
+}
+[data-layout="reference"] #calendar-card .calendar-day.today {
+  background: linear-gradient(to right bottom, var(--color-brand), var(--color-brand-secondary));
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ============================================================
+   ArticleCard (from aritcle-card.tsx)
+   <Card className='space-y-2'><h2>最新文章</h2>
+   <Link><img 48x48 rounded-xl/><div><title/><summary/><date/></div></Link></Card>
    ============================================================ */
 [data-layout="reference"] #article-card {
-  max-width: 380px;
+  max-width: 420px;
   width: 100%;
-  padding: 24px;
+}
+[data-layout="reference"] #article-card > * + * {
+  margin-top: 8px;
 }
 [data-layout="reference"] #article-card .article-card-label {
   font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0 0 12px;
+  color: var(--color-secondary);
 }
 [data-layout="reference"] #article-card .article-card-link {
   display: flex;
-  gap: 12px;
   text-decoration: none;
   color: inherit;
   transition: opacity 0.2s;
@@ -238,22 +335,25 @@
   opacity: 0.8;
 }
 [data-layout="reference"] #article-card .article-card-cover {
-  width: 56px; height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   border: 1px solid rgba(0,0,0,0.06);
   object-fit: cover;
   flex-shrink: 0;
+  margin-right: 12px;
 }
 [data-layout="reference"] #article-card .article-card-cover-fb {
-  width: 56px; height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
-  background: var(--card-bg);
+  background: rgba(255,255,255,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
-  font-size: 18px;
   flex-shrink: 0;
+  margin-right: 12px;
+  color: var(--color-secondary);
 }
 [data-layout="reference"] #article-card .article-card-info {
   flex: 1;
@@ -262,153 +362,41 @@
 [data-layout="reference"] #article-card .article-card-title {
   font-size: 14px;
   font-weight: 500;
+  overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
-  overflow: hidden;
   margin: 0 0 4px;
 }
 [data-layout="reference"] #article-card .article-card-summary {
   font-size: 12px;
-  color: var(--text-secondary);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  color: var(--color-secondary);
   overflow: hidden;
-  margin: 0 0 4px;
-  line-height: 1.5;
-}
-[data-layout="reference"] #article-card .article-card-date {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-/* ============================================================
-   CLOCK CARD (7-segment style)
-   ============================================================ */
-[data-layout="reference"] #clock-card {
-  max-width: 200px;
-  width: 100%;
-  padding: 12px;
-}
-[data-layout="reference"] #clock-card .clock-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: rgba(0,0,0,0.03);
-  border-radius: var(--card-radius);
-  padding: 16px 12px;
-}
-[data-layout="reference"] .clock-digit {
-  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
-  font-size: 32px;
-  font-weight: 300;
-  color: var(--text-primary);
-  background: rgba(0,0,0,0.03);
-  border-radius: 8px;
-  padding: 4px 8px;
-  line-height: 1;
-}
-[data-layout="reference"] .clock-colon {
-  font-size: 24px;
-  color: var(--text-secondary);
-  padding: 0 2px;
-}
-
-/* ============================================================
-   CALENDAR CARD
-   ============================================================ */
-[data-layout="reference"] #calendar-card {
-  max-width: 260px;
-  width: 100%;
-}
-[data-layout="reference"] #calendar-card .calendar-header {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0 0 12px;
-}
-[data-layout="reference"] #calendar-card .calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  text-align: center;
-  font-size: 13px;
-}
-[data-layout="reference"] #calendar-card .calendar-day-name {
-  color: var(--text-secondary);
-  font-weight: 500;
-  padding: 4px 0;
-}
-[data-layout="reference"] #calendar-card .calendar-day-name.today {
-  color: var(--brand);
-}
-[data-layout="reference"] #calendar-card .calendar-day {
-  padding: 6px 0;
-  border-radius: 8px;
-  color: var(--text-primary);
-}
-[data-layout="reference"] #calendar-card .calendar-day.today {
-  background: linear-gradient(to right bottom, var(--brand) 0%, var(--brand-secondary));
-  color: #fff;
-  font-weight: 500;
-}
-[data-layout="reference"] #calendar-card .calendar-day.empty {
-  visibility: hidden;
-}
-
-/* ============================================================
-   SHARE CARD (random recommendation)
-   ============================================================ */
-[data-layout="reference"] #share-card {
-  max-width: 380px;
-  width: 100%;
-}
-[data-layout="reference"] #share-card .share-card-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0 0 12px;
-}
-[data-layout="reference"] #share-card .share-card-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-[data-layout="reference"] #share-card .share-card-img {
-  width: 48px; height: 48px;
-  border-radius: 12px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-[data-layout="reference"] #share-card .share-card-title {
-  font-size: 14px;
-  font-weight: 500;
-  margin: 0 0 4px;
-}
-[data-layout="reference"] #share-card .share-card-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  overflow: hidden;
   line-height: 1.5;
+  margin: 0 0 4px;
+}
+[data-layout="reference"] #article-card .article-card-date {
+  font-size: 12px;
+  color: var(--color-secondary);
+  margin-top: 12px;
 }
 
-/* === Sidebar Widgets === */
+/* === Sidebar Widgets (card style) === */
 [data-layout="reference"] .card-widget {
-  background: var(--card-bg) !important;
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  border: 1px solid var(--card-border);
+  background: var(--color-card) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--color-border);
   border-radius: 24px !important;
-  box-shadow: var(--card-shadow);
 }
 
 /* === Pagination === */
 [data-layout="reference"] #pagination .page-number.current {
-  background: var(--brand) !important; color: #fff !important;
+  background: var(--color-brand) !important;
+  color: #fff !important;
 }
 [data-layout="reference"] #pagination .page-number {
   border-radius: 12px;
@@ -420,78 +408,76 @@
   border: 1px solid rgba(0,0,0,0.06);
 }
 [data-layout="reference"] code:not([class]) {
-  background: rgba(53,191,171,0.08); color: var(--brand);
-  padding: 2px 6px; border-radius: 6px; font-size: 0.9em;
+  background: rgba(53,191,171,0.08);
+  color: var(--color-brand);
+  padding: 2px 6px;
+  border-radius: 6px;
 }
 
 /* === Blockquote === */
 [data-layout="reference"] blockquote {
-  border-left: 3px solid var(--brand) !important;
-  background: rgba(0,0,0,0.02);
+  border-left: 3px solid var(--color-brand) !important;
   border-radius: 0 8px 8px 0;
-  padding: 14px 20px; margin: 18px 0;
-  color: var(--text-secondary);
+  padding: 14px 20px;
+  margin: 18px 0;
+  color: var(--color-secondary);
 }
 
-/* === Right Side Button === */
-[data-layout="reference"] #rightside button:hover,
-[data-layout="reference"] #rightside button:active {
-  background: var(--brand) !important; color: #fff !important;
+/* === Layout Toggle === */
+[data-layout="reference"] #layout-toggle {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--color-primary);
+}
+[data-layout="reference"] #layout-toggle:hover {
+  background: var(--color-brand);
+  color: #fff;
 }
 
-/* === Search Dialog (card style) === */
-[data-layout="reference"] #search-dialog {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow), var(--card-inner-highlight);
-}
-
-/* === Layout Toggle Button === */
 #layout-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 35px; height: 35px;
   border-radius: 12px;
-  background: var(--card-bg);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  border: 1px solid var(--card-border);
   cursor: pointer;
-  font-size: 14px; color: var(--text-primary);
+  font-size: 14px;
   transition: all 0.2s ease;
   margin-bottom: 4px;
-  line-height: 1;
-  box-shadow: var(--card-shadow);
-}
-#layout-toggle:hover {
-  background: var(--brand);
-  color: #fff;
-  transform: scale(1.05);
 }
 
-[data-layout="reference"] #layout-toggle:hover {
-  background: var(--brand);
-  color: #fff;
+/* === Search Dialog === */
+[data-layout="reference"] #search-dialog {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 40px;
+  box-shadow: 0 40px 50px -32px rgba(0,0,0,0.05), inset 0 0 20px rgba(255,255,255,0.25);
 }
 
-/* === Responsive === */
+/* === Responsive (max-sm in reference blog) === */
 @media screen and (max-width: 768px) {
   [data-layout="reference"] #reference-home {
     gap: 24px;
     padding-top: 24px;
   }
-  [data-layout="reference"] #hi-card {
-    padding: 36px 24px 32px;
-    max-width: 100%;
+  [data-layout="reference"] #content-inner {
+    padding: 0 8px !important;
+  }
+  [data-layout="reference"] #hi-card h1 {
+    font-size: 20px;
+  }
+  [data-layout="reference"] #hi-card h1 .hi-name {
+    font-size: 28px;
   }
   [data-layout="reference"] #hi-card .hi-avatar {
-    width: 96px; height: 96px;
+    width: 96px;
+    height: 96px;
   }
-  [data-layout="reference"] #hi-card .hi-greeting { font-size: 20px; }
-  [data-layout="reference"] #hi-card .hi-name { font-size: 28px; }
-  [data-layout="reference"] #content-inner { padding: 0 8px !important; }
-  [data-layout="reference"] #article-card { max-width: 100%; }
-  [data-layout="reference"] #social-buttons { max-width: 100%; }
+  [data-layout="reference"] #clock-card .clock-display {
+    padding: 12px 8px;
+  }
 }
