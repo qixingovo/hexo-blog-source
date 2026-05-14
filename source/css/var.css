@@ -12,7 +12,7 @@
   --bg-secondary: #ffffff;
 
   /* Glass effect params */
-  --glass-nav-bg: rgba(255,255,255,0.65);
+  --glass-nav-bg: rgba(255,255,255,0.88);
   --glass-nav-blur: blur(12px);
   --glass-nav-border: rgba(255,255,255,0.5);
   --glass-card-bg: rgba(255,255,255,0.75);
