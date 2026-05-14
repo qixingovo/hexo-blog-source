@@ -182,9 +182,6 @@
       posts.push({ coverUrl: coverUrl, title: title, url: url, dateText: dateText, category: category, excerpt: excerpt });
     });
 
-    var pagination = container.querySelector('#pagination');
-    var pagHTML = pagination ? pagination.outerHTML : '';
-
     // --- Time-based greeting ---
     var hour = new Date().getHours();
     var greeting = hour < 6 ? 'Good Night' : hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : hour < 22 ? 'Good Evening' : 'Good Night';
@@ -234,35 +231,6 @@
         '</div>';
     }
 
-    // --- Remaining posts grid ---
-    var gridHTML = '';
-    if (posts.length > 1) {
-      gridHTML = '<p class="ref-posts-label">\u6240\u6709\u6587\u7ae0</p><div class="cards-grid">';
-      for (var i = 1; i < posts.length; i++) {
-        var p = posts[i];
-        gridHTML +=
-          '<article class="post-card" style="--i:' + (i - 1) + '">' +
-            '<a class="post-card-cover" href="' + p.url + '">' +
-              (p.coverUrl
-                ? '<img src="' + p.coverUrl + '" alt="' + p.title + '" loading="lazy">'
-                : '<div class="post-card-cover-fb"></div>') +
-            '</a>' +
-            '<div class="post-card-body">' +
-              '<div class="post-card-meta">' +
-                '<span>' + p.dateText + '</span>' +
-                (p.category ? '<span class="post-card-cat">' + p.category + '</span>' : '') +
-              '</div>' +
-              '<a class="post-card-title" href="' + p.url + '">' + p.title + '</a>' +
-              '<p class="post-card-excerpt">' + p.excerpt + '</p>' +
-            '</div>' +
-          '</article>';
-      }
-      gridHTML += '</div>';
-    } else if (posts.length === 0) {
-      gridHTML = '<p class="ref-posts-label">\u6682\u65e0\u6587\u7ae0</p>';
-    }
-
-    // --- Build the full homepage ---
     var html =
       '<div id="reference-home">' +
         // HiCard
@@ -302,10 +270,6 @@
         '</div>' +
         // Article card (latest)
         articleCardHTML +
-        // Remaining posts grid
-        gridHTML +
-        // Pagination
-        pagHTML +
       '</div>';
 
     container.outerHTML = html;
