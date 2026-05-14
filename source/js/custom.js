@@ -1,8 +1,8 @@
 /**
- * Blog Visual Overhaul v2
- * - LiquidGrass Canvas background animation
- * - Aurora Hero with typewriter
- * - Card-grid homepage rendering
+ * Blog Visual Overhaul v3 — 晴空主题
+ * - Blurred bubbles canvas background
+ * - Centered profile hero card
+ * - Soft glassmorphism article cards
  * - Local search
  */
 (function () {
@@ -15,255 +15,223 @@
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
+  // Perlin-like noise (simplified for bubbles)
+  var noisePerm = [];
+  (function initNoise() {
+    for (var i = 0; i < 256; i++) noisePerm[i] = i;
+    for (var j = 0; j < 256; j++) {
+      var k = (Math.random() * 256) | 0;
+      var tmp = noisePerm[j]; noisePerm[j] = noisePerm[k]; noisePerm[k] = tmp;
+    }
+    for (var l = 0; l < 256; l++) noisePerm[l + 256] = noisePerm[l];
+  })();
+
+  function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+  function lerp(a, b, t) { return a + t * (b - a); }
+  function grad(hash, x, y) {
+    var h = hash & 3;
+    return (h < 2 ? x : -x) + (h === 0 || h === 3 ? y : -y);
+  }
+  function noise2D(x, y) {
+    var X = (x | 0) & 255, Y = (y | 0) & 255;
+    var xf = x - (x | 0), yf = y - (y | 0);
+    var u = fade(xf), v = fade(yf);
+    var a = noisePerm[noisePerm[X] + Y], b = noisePerm[noisePerm[X + 1] + Y];
+    var c = noisePerm[noisePerm[X] + Y + 1], d = noisePerm[noisePerm[X + 1] + Y + 1];
+    return lerp(lerp(grad(a, xf, yf), grad(b, xf - 1, yf), u),
+                lerp(grad(c, xf, yf - 1), grad(d, xf - 1, yf - 1), u), v);
+  }
+
   // ============================================================
-  // 1. LIQUIDGRASS CANVAS
+  // 1. BLURRED BUBBLES BACKGROUND
   // ============================================================
-  function initLiquidGrass() {
+  function initBubbles() {
     var bg = document.getElementById('web_bg');
     if (!bg) return;
 
     var canvas = document.createElement('canvas');
-    canvas.id = 'liquid-grass-canvas';
+    canvas.id = 'bubbles-canvas';
+    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
     bg.appendChild(canvas);
     var ctx = canvas.getContext('2d');
 
-    var particles = [];
-    var mouse = { x: -1000, y: -1000, active: false };
+    var bubbles = [];
+    var BUBBLE_COUNT = 6;
     var animId;
-    var PARTICLE_COUNT = window.innerWidth < 768 ? 60 : 100;
-    var CONNECT_DIST = 140;
-    var MOUSE_RADIUS = 130;
+    var lastTime = 0;
+    var targetFPS = 8;
 
-    function readColors() {
-      return [
-        getCSSVar('--aurora-c1') || '#4facfe',
-        getCSSVar('--aurora-c2') || '#7367f0',
-        getCSSVar('--aurora-c3') || '#f093fb'
-      ];
+    function readBubbleColors() {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return isDark
+        ? ['rgba(42,72,243,0.35)', 'rgba(81,208,185,0.25)', 'rgba(100,100,255,0.2)', 'rgba(42,72,243,0.2)', 'rgba(81,208,185,0.3)', 'rgba(80,60,180,0.25)']
+        : ['rgba(247,218,57,0.45)', 'rgba(143,219,233,0.45)', 'rgba(255,254,248,0.55)', 'rgba(247,218,57,0.35)', 'rgba(143,219,233,0.55)', 'rgba(255,254,248,0.4)'];
     }
 
     function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
     }
 
-    function createParticles() {
-      particles.length = 0;
-      var colors = readColors();
-      for (var i = 0; i < PARTICLE_COUNT; i++) {
-        particles.push({
-          baseX: Math.random() * canvas.width,
-          baseY: Math.random() * canvas.height,
-          x: 0, y: 0,
-          size: 1.2 + Math.random() * 2.4,
-          speed: 0.3 + Math.random() * 0.6,
-          phaseX: Math.random() * Math.PI * 2,
-          phaseY: Math.random() * Math.PI * 2,
-          ampX: 25 + Math.random() * 50,
-          ampY: 15 + Math.random() * 35,
-          color: colors[Math.floor(Math.random() * colors.length)]
+    function createBubbles() {
+      var W = window.innerWidth;
+      var H = window.innerHeight;
+      var colors = readBubbleColors();
+      bubbles.length = 0;
+      for (var i = 0; i < BUBBLE_COUNT; i++) {
+        bubbles.push({
+          x: Math.random() * W,
+          y: H * 0.8 + Math.random() * H * 0.4, // bias toward bottom 80%
+          r: 200 + Math.random() * 200,           // radius 200-400
+          vx: 0, vy: 0,
+          color: colors[i],
+          seed: Math.random() * 1000
         });
       }
     }
 
     function update(timestamp) {
-      var t = timestamp * 0.001;
-      for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-        p.x = p.baseX + Math.sin(t * p.speed + p.phaseX) * p.ampX;
-        p.y = p.baseY + Math.cos(t * p.speed * 0.7 + p.phaseY) * p.ampY;
+      var W = window.innerWidth, H = window.innerHeight;
+      var t = timestamp * 0.00015; // time factor for noise
 
-        // Mouse interaction — gentle push away
-        if (mouse.active) {
-          var dx = p.x - mouse.x;
-          var dy = p.y - mouse.y;
+      for (var i = 0; i < bubbles.length; i++) {
+        var b = bubbles[i];
+        // Noise-driven gentle drift
+        var nx = noise2D(b.x * 0.0008, b.y * 0.0008 + b.seed) * 2;
+        var ny = noise2D(b.x * 0.0008 + b.seed, b.y * 0.0008 + t) * 2;
+
+        // Keep bubbles roughly in the bottom area
+        var targetY = H * 0.75;
+        var yBias = (targetY - b.y) * 0.0002;
+
+        b.vx += nx * 0.12;
+        b.vy += ny * 0.12 + yBias;
+        b.vx *= 0.95; // damping
+        b.vy *= 0.95;
+        b.vx = Math.max(-1.5, Math.min(1.5, b.vx));
+        b.vy = Math.max(-1.5, Math.min(1.5, b.vy));
+        b.x += b.vx;
+        b.y += b.vy;
+
+        // Separation between bubbles
+        for (var j = i + 1; j < bubbles.length; j++) {
+          var b2 = bubbles[j];
+          var dx = b.x - b2.x, dy = b.y - b2.y;
           var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < MOUSE_RADIUS && dist > 0) {
-            var force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS;
-            p.x += (dx / dist) * force * 4;
-            p.y += (dy / dist) * force * 4;
+          var minD = (b.r + b2.r) * 0.4;
+          if (dist < minD && dist > 0) {
+            var force = (minD - dist) / minD * 0.5;
+            b.x += (dx / dist) * force;
+            b.y += (dy / dist) * force;
+            b2.x -= (dx / dist) * force;
+            b2.y -= (dy / dist) * force;
           }
         }
 
-        // Wrap around edges
-        if (p.x < -50) p.x = canvas.width + 50;
-        if (p.x > canvas.width + 50) p.x = -50;
-        if (p.y < -50) p.y = canvas.height + 50;
-        if (p.y > canvas.height + 50) p.y = -50;
+        // Wrap horizontally, clamp vertically
+        if (b.x < -b.r) b.x = W + b.r;
+        if (b.x > W + b.r) b.x = -b.r;
+        b.y = Math.max(-b.r * 0.5, Math.min(H + b.r * 0.5, b.y));
       }
     }
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw connections
-      for (var i = 0; i < particles.length; i++) {
-        for (var j = i + 1; j < particles.length; j++) {
-          var dx = particles[i].x - particles[j].x;
-          var dy = particles[i].y - particles[j].y;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECT_DIST) {
-            var opacity = (1 - dist / CONNECT_DIST) * 0.12;
-            ctx.strokeStyle = particles[i].color.replace(')', ', ' + opacity + ')').replace('rgb', 'rgba');
-            if (particles[i].color.startsWith('#')) {
-              ctx.strokeStyle = particles[i].color + Math.round(opacity * 255).toString(16).padStart(2, '0');
-            }
-            ctx.lineWidth = 0.6;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Draw particles
-      for (var k = 0; k < particles.length; k++) {
-        var p = particles[k];
-        ctx.fillStyle = p.color;
+      ctx.globalAlpha = 0.85;
+      for (var i = 0; i < bubbles.length; i++) {
+        var b = bubbles[i];
+        // Radial gradient to simulate a soft blurred bubble
+        var grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+        grad.addColorStop(0, b.color);
+        grad.addColorStop(0.5, b.color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.globalAlpha = 1;
     }
 
     function animate(timestamp) {
-      update(timestamp);
-      draw();
+      if (!lastTime) lastTime = timestamp;
+      var elapsed = timestamp - lastTime;
+      // Draw at low FPS for soft feel
+      if (elapsed > 1000 / targetFPS) {
+        update(timestamp);
+        draw();
+        lastTime = timestamp;
+      }
       animId = requestAnimationFrame(animate);
     }
 
-    // Handlers
-    function onMouseMove(e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      mouse.active = true;
-    }
-    function onMouseLeave() { mouse.active = false; }
-    function onTouchMove(e) {
-      if (e.touches.length) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-        mouse.active = true;
-      }
-    }
-    function onTouchEnd() { mouse.active = false; }
-
-    // Theme change observer
+    // Theme observer
     var themeObserver = new MutationObserver(function () {
-      var colors = readColors();
-      for (var i = 0; i < particles.length; i++) {
-        particles[i].color = colors[Math.floor(Math.random() * colors.length)];
+      var colors = readBubbleColors();
+      for (var i = 0; i < bubbles.length; i++) {
+        bubbles[i].color = colors[i];
       }
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-    // Visibility handler — pause when tab hidden
-    function onVisibility() {
-      if (document.hidden) {
-        cancelAnimationFrame(animId);
-        animId = null;
-      } else if (!animId) {
-        animId = requestAnimationFrame(animate);
-      }
+    // Visibility
+    function onVis() {
+      if (document.hidden) { cancelAnimationFrame(animId); animId = null; }
+      else if (!animId) { lastTime = 0; animId = requestAnimationFrame(animate); }
     }
 
     resize();
-    createParticles();
+    createBubbles();
     animId = requestAnimationFrame(animate);
 
-    window.addEventListener('resize', function () { resize(); createParticles(); });
-    document.addEventListener('mousemove', onMouseMove, { passive: true });
-    document.addEventListener('mouseleave', onMouseLeave);
-    document.addEventListener('touchmove', onTouchMove, { passive: true });
-    document.addEventListener('touchend', onTouchEnd);
-    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('resize', function () { resize(); createBubbles(); });
+    document.addEventListener('visibilitychange', onVis);
   }
 
   // ============================================================
-  // 2. AURORA HERO
+  // 2. PROFILE HERO CARD
   // ============================================================
   function initHero() {
     if (!isHome) return;
     var container = document.getElementById('recent-posts');
     if (!container) return;
 
-    var slogans = [
-      '记录技术成长，分享开发心得',
-      '探索代码之美',
-      'Stay Hungry, Stay Foolish'
-    ];
+    var greeting = '';
+    var hour = new Date().getHours();
+    if (hour < 6) greeting = '夜深了';
+    else if (hour < 9) greeting = '早上好';
+    else if (hour < 12) greeting = '上午好';
+    else if (hour < 14) greeting = '中午好';
+    else if (hour < 18) greeting = '下午好';
+    else if (hour < 22) greeting = '晚上好';
+    else greeting = '夜深了';
 
     var heroHTML =
-      '<div id="aurora-hero">' +
-        '<h1 class="hero-title">qixingovo-blog</h1>' +
-        '<div class="hero-subtitle">' +
-          '<span id="typewriter-text"></span>' +
-          '<span class="typewriter-cursor">|</span>' +
+      '<div id="profile-card">' +
+        '<div class="profile-avatar">' +
+          '<img src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'">' +
         '</div>' +
-        '<div class="hero-scroll-hint">' +
-          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>' +
+        '<p class="profile-greeting">' + greeting + '</p>' +
+        '<h1 class="profile-name">qixingovo</h1>' +
+        '<p class="profile-bio">记录技术成长，分享开发心得</p>' +
+        '<div class="profile-links">' +
+          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="profile-link-item">' +
+            '<i class="fab fa-github"></i><span>GitHub</span>' +
+          '</a>' +
+          '<a href="mailto:qixingovo@gmail.com" class="profile-link-item">' +
+            '<i class="fas fa-envelope"></i><span>Email</span>' +
+          '</a>' +
         '</div>' +
       '</div>';
 
     container.insertAdjacentHTML('beforebegin', heroHTML);
-
-    // Typewriter
-    var twEl = document.getElementById('typewriter-text');
-    var cursorEl = document.querySelector('.typewriter-cursor');
-    if (!twEl) return;
-
-    var sloganIdx = 0;
-    var charIdx = 0;
-    var isDeleting = false;
-    var twTimer;
-
-    function type() {
-      var text = slogans[sloganIdx];
-      if (!isDeleting) {
-        charIdx++;
-        twEl.textContent = text.substring(0, charIdx);
-        if (charIdx >= text.length) {
-          twTimer = setTimeout(type, 2000);
-          isDeleting = true;
-          return;
-        }
-        twTimer = setTimeout(type, 80 + Math.random() * 40);
-      } else {
-        charIdx--;
-        twEl.textContent = text.substring(0, charIdx);
-        if (charIdx <= 0) {
-          isDeleting = false;
-          sloganIdx = (sloganIdx + 1) % slogans.length;
-          twTimer = setTimeout(type, 400);
-          return;
-        }
-        twTimer = setTimeout(type, 40 + Math.random() * 20);
-      }
-    }
-    twTimer = setTimeout(type, 600);
-
-    // Blink cursor
-    setInterval(function () {
-      if (cursorEl) {
-        cursorEl.style.opacity = cursorEl.style.opacity === '0' ? '1' : '0';
-      }
-    }, 530);
-
-    // Scroll parallax + fade
-    var hero = document.getElementById('aurora-hero');
-    function onScroll() {
-      var scrollY = window.scrollY || window.pageYOffset;
-      var heroH = hero.offsetHeight;
-      var progress = Math.min(scrollY / heroH, 1);
-      hero.style.opacity = (1 - progress * 1.1).toFixed(2);
-      hero.style.transform = 'translateY(' + (scrollY * 0.25) + 'px)';
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   // ============================================================
-  // 3. CARD GRID RENDERING
+  // 3. ARTICLE CARDS
   // ============================================================
   function initCards() {
     if (!isHome) return;
@@ -273,7 +241,10 @@
     var items = container.querySelectorAll('.recent-post-item');
     if (items.length === 0) return;
 
-    var cardsHTML = '<div class="aurora-cards-grid">';
+    var pagination = container.querySelector('#pagination');
+    var pagHTML = pagination ? pagination.outerHTML : '';
+
+    var cardsHTML = '<div class="cards-grid">';
     items.forEach(function (item, i) {
       var coverEl = item.querySelector('.post_cover img');
       var coverUrl = coverEl ? (coverEl.getAttribute('data-lazy-src') || coverEl.src) : '';
@@ -282,7 +253,7 @@
       var url = titleEl ? titleEl.getAttribute('href') : '';
 
       var dateEl = item.querySelector('.post-meta-date');
-      var dateText = dateEl ? dateEl.textContent.replace(/\s+/g, ' ').trim() : '';
+      var dateText = dateEl ? dateEl.textContent.replace(/\s+/g, ' ').replace(/发表于\s*/, '').trim() : '';
 
       var catEl = item.querySelector('.article-meta__categories, .article-meta-categories');
       var category = catEl ? catEl.textContent.trim() : '';
@@ -291,45 +262,28 @@
       var excerpt = '';
       if (contentEl) {
         var t = contentEl.textContent.trim();
-        excerpt = t.length > 160 ? t.substring(0, 160) + '...' : t;
+        excerpt = t.length > 140 ? t.substring(0, 140) + '...' : t;
       }
 
-      // Estimate reading time
-      var charCount = excerpt.replace(/[\s\r\n]/g, '').length;
-      var chineseChars = (excerpt.match(/[\u4e00-\u9fff]/g) || []).length;
-      var nonChinese = excerpt.replace(/[\u4e00-\u9fff]/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-      var readingMin = Math.max(1, Math.ceil((chineseChars + nonChinese * 2) / 400));
-
       cardsHTML +=
-        '<article class="aurora-card" style="animation-delay:' + (i * 0.07) + 's">' +
-          '<a class="aurora-card-cover" href="' + url + '" aria-label="' + title + '">' +
+        '<article class="post-card" style="--i:' + i + '">' +
+          '<a class="post-card-cover" href="' + url + '">' +
             (coverUrl
               ? '<img src="' + coverUrl + '" alt="' + title + '" loading="lazy">'
-              : '<div class="aurora-card-cover-fallback"></div>') +
-            '<div class="aurora-card-cover-shine"></div>' +
+              : '<div class="post-card-cover-fb"></div>') +
           '</a>' +
-          '<div class="aurora-card-body">' +
-            '<div class="aurora-card-meta">' +
-              '<span class="aurora-card-date"><i class="far fa-calendar-alt"></i> ' + dateText + '</span>' +
-              (category ? '<span class="aurora-card-category"><i class="fas fa-folder"></i> ' + category + '</span>' : '') +
-              '<span class="aurora-card-reading"><i class="fas fa-clock"></i> ' + readingMin + ' min</span>' +
+          '<div class="post-card-body">' +
+            '<div class="post-card-meta">' +
+              '<span>' + dateText + '</span>' +
+              (category ? '<span class="post-card-cat">' + category + '</span>' : '') +
             '</div>' +
-            '<a class="aurora-card-title" href="' + url + '">' + title + '</a>' +
-            '<p class="aurora-card-excerpt">' + excerpt + '</p>' +
-            '<a class="aurora-card-readmore" href="' + url + '">' +
-              '阅读更多' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
-            '</a>' +
+            '<a class="post-card-title" href="' + url + '">' + title + '</a>' +
+            '<p class="post-card-excerpt">' + excerpt + '</p>' +
           '</div>' +
         '</article>';
     });
 
     cardsHTML += '</div>';
-
-    // Preserve pagination
-    var pagination = container.querySelector('#pagination');
-    var pagHTML = pagination ? pagination.outerHTML : '';
-
     container.innerHTML = cardsHTML + pagHTML;
   }
 
@@ -394,10 +348,7 @@
     function doSearch(query) {
       var container = document.getElementById('search-results');
       if (!container) return;
-      if (!query) {
-        container.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>';
-        return;
-      }
+      if (!query) { container.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>'; return; }
       var q = query.toLowerCase();
       var results = [];
       searchData.forEach(function (item) {
@@ -444,7 +395,6 @@
         setTimeout(function () { searchInput.focus(); }, 200);
       });
     }
-
     function closeSearch() {
       searchMask.style.display = 'none';
       searchDialog.style.display = 'none';
@@ -460,15 +410,9 @@
     searchInput.addEventListener('input', function () {
       loadSearchData(function () { doSearch(searchInput.value.trim()); });
     });
-
     document.addEventListener('keydown', function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        openSearch();
-      }
-      if (e.key === 'Escape' && searchDialog.style.display === 'flex') {
-        closeSearch();
-      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+      if (e.key === 'Escape' && searchDialog.style.display === 'flex') { closeSearch(); }
     });
   }
 
@@ -476,7 +420,7 @@
   // BOOT
   // ============================================================
   function boot() {
-    initLiquidGrass();
+    initBubbles();
     initSearch();
     if (isHome) {
       initHero();
