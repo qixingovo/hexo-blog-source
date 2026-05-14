@@ -1,8 +1,8 @@
 /**
- * Blog Visual Overhaul v3 — 晴空主题
- * - Blurred bubbles canvas background
- * - Centered profile hero card
- * - Soft glassmorphism article cards
+ * Blog Custom JS — Reference Blog Style
+ * - BlurredBubbles canvas background
+ * - Profile hero card (HiCard style)
+ * - Glassmorphism article card grid
  * - Local search
  */
 (function () {
@@ -15,29 +15,29 @@
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
-  // Perlin-like noise (simplified for bubbles)
-  var noisePerm = [];
-  (function initNoise() {
-    for (var i = 0; i < 256; i++) noisePerm[i] = i;
+  // Simplex-like noise for organic bubble movement
+  var perm = [];
+  (function () {
+    for (var i = 0; i < 256; i++) perm[i] = i;
     for (var j = 0; j < 256; j++) {
       var k = (Math.random() * 256) | 0;
-      var tmp = noisePerm[j]; noisePerm[j] = noisePerm[k]; noisePerm[k] = tmp;
+      var t = perm[j]; perm[j] = perm[k]; perm[k] = t;
     }
-    for (var l = 0; l < 256; l++) noisePerm[l + 256] = noisePerm[l];
+    for (var l = 0; l < 256; l++) perm[l + 256] = perm[l];
   })();
 
   function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
   function lerp(a, b, t) { return a + t * (b - a); }
-  function grad(hash, x, y) {
-    var h = hash & 3;
-    return (h < 2 ? x : -x) + (h === 0 || h === 3 ? y : -y);
+  function grad(h, x, y) {
+    var g = h & 3;
+    return (g < 2 ? x : -x) + (g === 0 || g === 3 ? y : -y);
   }
   function noise2D(x, y) {
     var X = (x | 0) & 255, Y = (y | 0) & 255;
     var xf = x - (x | 0), yf = y - (y | 0);
     var u = fade(xf), v = fade(yf);
-    var a = noisePerm[noisePerm[X] + Y], b = noisePerm[noisePerm[X + 1] + Y];
-    var c = noisePerm[noisePerm[X] + Y + 1], d = noisePerm[noisePerm[X + 1] + Y + 1];
+    var a = perm[perm[X] + Y], b = perm[perm[X + 1] + Y];
+    var c = perm[perm[X] + Y + 1], d = perm[perm[X + 1] + Y + 1];
     return lerp(lerp(grad(a, xf, yf), grad(b, xf - 1, yf), u),
                 lerp(grad(c, xf, yf - 1), grad(d, xf - 1, yf - 1), u), v);
   }
@@ -55,179 +55,162 @@
     bg.appendChild(canvas);
     var ctx = canvas.getContext('2d');
 
-    var bubbles = [];
-    var BUBBLE_COUNT = 6;
-    var animId;
-    var lastTime = 0;
-    var targetFPS = 8;
+    var bubbles = [], animId, lastTime = 0;
+    var FPS = 8;
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-    function readBubbleColors() {
-      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    function getColors() {
       return isDark
-        ? ['rgba(42,72,243,0.35)', 'rgba(81,208,185,0.25)', 'rgba(100,100,255,0.2)', 'rgba(42,72,243,0.2)', 'rgba(81,208,185,0.3)', 'rgba(80,60,180,0.25)']
-        : ['rgba(247,218,57,0.45)', 'rgba(143,219,233,0.45)', 'rgba(255,254,248,0.55)', 'rgba(247,218,57,0.35)', 'rgba(143,219,233,0.55)', 'rgba(255,254,248,0.4)'];
+        ? ['rgba(42,72,243,0.25)', 'rgba(81,208,185,0.18)', 'rgba(100,100,255,0.15)',
+           'rgba(42,72,243,0.15)', 'rgba(81,208,185,0.22)', 'rgba(80,60,180,0.18)']
+        : ['rgba(247,218,57,0.35)', 'rgba(143,219,233,0.4)', 'rgba(255,254,248,0.45)',
+           'rgba(247,218,57,0.28)', 'rgba(143,219,233,0.48)', 'rgba(255,254,248,0.35)'];
     }
 
     function resize() {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function createBubbles() {
-      var W = window.innerWidth;
-      var H = window.innerHeight;
-      var colors = readBubbleColors();
+    function spawn() {
+      var W = window.innerWidth, H = window.innerHeight;
+      var colors = getColors();
       bubbles.length = 0;
-      for (var i = 0; i < BUBBLE_COUNT; i++) {
+      for (var i = 0; i < 6; i++) {
         bubbles.push({
-          x: Math.random() * W,
-          y: H * 0.8 + Math.random() * H * 0.4, // bias toward bottom 80%
-          r: 200 + Math.random() * 200,           // radius 200-400
+          x: W * 0.1 + Math.random() * W * 0.8,
+          y: H * 0.7 + Math.random() * H * 0.4,
+          r: 200 + Math.random() * 200,
           vx: 0, vy: 0,
           color: colors[i],
-          seed: Math.random() * 1000
+          seed: Math.random() * 1000,
+          targetX: 0, targetY: 0
         });
       }
     }
 
-    function update(timestamp) {
+    function update(ts) {
       var W = window.innerWidth, H = window.innerHeight;
-      var t = timestamp * 0.00015; // time factor for noise
+      var t = ts * 0.00015;
 
       for (var i = 0; i < bubbles.length; i++) {
         var b = bubbles[i];
-        // Noise-driven gentle drift
-        var nx = noise2D(b.x * 0.0008, b.y * 0.0008 + b.seed) * 2;
-        var ny = noise2D(b.x * 0.0008 + b.seed, b.y * 0.0008 + t) * 2;
+        var nx = noise2D(b.x * 0.0008, b.y * 0.0008 + b.seed) * 1.5;
+        var ny = noise2D(b.x * 0.0008 + b.seed, b.y * 0.0008 + t) * 1.5;
 
-        // Keep bubbles roughly in the bottom area
-        var targetY = H * 0.75;
-        var yBias = (targetY - b.y) * 0.0002;
+        // Drift toward bottom third
+        var homeY = H * 0.78;
+        var pullY = (homeY - b.y) * 0.00015;
 
-        b.vx += nx * 0.12;
-        b.vy += ny * 0.12 + yBias;
-        b.vx *= 0.95; // damping
+        b.vx += nx * 0.1;
+        b.vy += ny * 0.1 + pullY;
+        b.vx *= 0.95;
         b.vy *= 0.95;
-        b.vx = Math.max(-1.5, Math.min(1.5, b.vx));
-        b.vy = Math.max(-1.5, Math.min(1.5, b.vy));
+        b.vx = Math.max(-1.2, Math.min(1.2, b.vx));
+        b.vy = Math.max(-1.2, Math.min(1.2, b.vy));
         b.x += b.vx;
         b.y += b.vy;
 
-        // Separation between bubbles
+        // Push apart overlapping bubbles
         for (var j = i + 1; j < bubbles.length; j++) {
           var b2 = bubbles[j];
           var dx = b.x - b2.x, dy = b.y - b2.y;
           var dist = Math.sqrt(dx * dx + dy * dy);
-          var minD = (b.r + b2.r) * 0.4;
+          var minD = (b.r + b2.r) * 0.35;
           if (dist < minD && dist > 0) {
-            var force = (minD - dist) / minD * 0.5;
-            b.x += (dx / dist) * force;
-            b.y += (dy / dist) * force;
-            b2.x -= (dx / dist) * force;
-            b2.y -= (dy / dist) * force;
+            var f = (minD - dist) / minD * 0.4;
+            b.x += (dx / dist) * f;
+            b.y += (dy / dist) * f;
+            b2.x -= (dx / dist) * f;
+            b2.y -= (dy / dist) * f;
           }
         }
 
-        // Wrap horizontally, clamp vertically
+        // Wrap horizontal, clamp vertical
         if (b.x < -b.r) b.x = W + b.r;
         if (b.x > W + b.r) b.x = -b.r;
-        b.y = Math.max(-b.r * 0.5, Math.min(H + b.r * 0.5, b.y));
+        b.y = Math.max(-b.r * 0.3, Math.min(H + b.r * 0.3, b.y));
       }
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.globalAlpha = 0.85;
+      var W = window.innerWidth, H = window.innerHeight;
+      ctx.clearRect(0, 0, W, H);
+
       for (var i = 0; i < bubbles.length; i++) {
         var b = bubbles[i];
-        // Radial gradient to simulate a soft blurred bubble
-        var grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-        grad.addColorStop(0, b.color);
-        grad.addColorStop(0.5, b.color);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
+        // Soft radial gradient: solid center fading smoothly to transparent edge
+        var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+        g.addColorStop(0, b.color);
+        g.addColorStop(0.4, b.color);
+        g.addColorStop(0.7, b.color.replace(/[\d.]+\)$/, '0)'));
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.globalAlpha = 1;
     }
 
-    function animate(timestamp) {
-      if (!lastTime) lastTime = timestamp;
-      var elapsed = timestamp - lastTime;
-      // Draw at low FPS for soft feel
-      if (elapsed > 1000 / targetFPS) {
-        update(timestamp);
+    function tick(ts) {
+      if (!lastTime) lastTime = ts;
+      if (ts - lastTime > 1000 / FPS) {
+        update(ts);
         draw();
-        lastTime = timestamp;
+        lastTime = ts;
       }
-      animId = requestAnimationFrame(animate);
+      animId = requestAnimationFrame(tick);
     }
 
-    // Theme observer
-    var themeObserver = new MutationObserver(function () {
-      var colors = readBubbleColors();
-      for (var i = 0; i < bubbles.length; i++) {
-        bubbles[i].color = colors[i];
+    // Theme change
+    var obs = new MutationObserver(function () {
+      var newDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (newDark !== isDark) {
+        isDark = newDark;
+        var colors = getColors();
+        for (var i = 0; i < bubbles.length; i++) bubbles[i].color = colors[i];
       }
     });
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-    // Visibility
+    // Pause when hidden
     function onVis() {
       if (document.hidden) { cancelAnimationFrame(animId); animId = null; }
-      else if (!animId) { lastTime = 0; animId = requestAnimationFrame(animate); }
+      else if (!animId) { lastTime = 0; animId = requestAnimationFrame(tick); }
     }
 
     resize();
-    createBubbles();
-    animId = requestAnimationFrame(animate);
-
-    window.addEventListener('resize', function () { resize(); createBubbles(); });
+    spawn();
+    animId = requestAnimationFrame(tick);
+    window.addEventListener('resize', function () { resize(); spawn(); });
     document.addEventListener('visibilitychange', onVis);
   }
 
   // ============================================================
-  // 2. PROFILE HERO CARD
+  // 2. PROFILE CARD
   // ============================================================
-  function initHero() {
+  function initProfile() {
     if (!isHome) return;
     var container = document.getElementById('recent-posts');
     if (!container) return;
 
-    var greeting = '';
     var hour = new Date().getHours();
-    if (hour < 6) greeting = '夜深了';
-    else if (hour < 9) greeting = '早上好';
-    else if (hour < 12) greeting = '上午好';
-    else if (hour < 14) greeting = '中午好';
-    else if (hour < 18) greeting = '下午好';
-    else if (hour < 22) greeting = '晚上好';
-    else greeting = '夜深了';
+    var greeting = hour < 6 ? '夜深了' : hour < 9 ? '早上好' : hour < 12 ? '上午好'
+      : hour < 14 ? '中午好' : hour < 18 ? '下午好' : hour < 22 ? '晚上好' : '夜深了';
 
-    var heroHTML =
+    container.insertAdjacentHTML('beforebegin',
       '<div id="profile-card">' +
-        '<div class="profile-avatar">' +
-          '<img src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'">' +
-        '</div>' +
+        '<div class="profile-avatar"><img src="/img/ymb3.png" alt="avatar" onerror="this.style.display=\'none\'"></div>' +
         '<p class="profile-greeting">' + greeting + '</p>' +
         '<h1 class="profile-name">qixingovo</h1>' +
         '<p class="profile-bio">记录技术成长，分享开发心得</p>' +
         '<div class="profile-links">' +
-          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="profile-link-item">' +
-            '<i class="fab fa-github"></i><span>GitHub</span>' +
-          '</a>' +
-          '<a href="mailto:qixingovo@gmail.com" class="profile-link-item">' +
-            '<i class="fas fa-envelope"></i><span>Email</span>' +
-          '</a>' +
+          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="profile-link-item"><i class="fab fa-github"></i><span>GitHub</span></a>' +
+          '<a href="mailto:qixingovo@gmail.com" class="profile-link-item"><i class="fas fa-envelope"></i><span>Email</span></a>' +
         '</div>' +
-      '</div>';
-
-    container.insertAdjacentHTML('beforebegin', heroHTML);
+      '</div>');
   }
 
   // ============================================================
@@ -244,10 +227,12 @@
     var pagination = container.querySelector('#pagination');
     var pagHTML = pagination ? pagination.outerHTML : '';
 
-    var cardsHTML = '<div class="cards-grid">';
+    var html = '<div class="cards-grid">';
     items.forEach(function (item, i) {
       var coverEl = item.querySelector('.post_cover img');
       var coverUrl = coverEl ? (coverEl.getAttribute('data-lazy-src') || coverEl.src) : '';
+      if (coverUrl && coverUrl.indexOf('data:image') === 0) coverUrl = '';
+
       var titleEl = item.querySelector('.article-title');
       var title = titleEl ? titleEl.textContent.trim() : '';
       var url = titleEl ? titleEl.getAttribute('href') : '';
@@ -265,7 +250,7 @@
         excerpt = t.length > 140 ? t.substring(0, 140) + '...' : t;
       }
 
-      cardsHTML +=
+      html +=
         '<article class="post-card" style="--i:' + i + '">' +
           '<a class="post-card-cover" href="' + url + '">' +
             (coverUrl
@@ -283,12 +268,12 @@
         '</article>';
     });
 
-    cardsHTML += '</div>';
-    container.innerHTML = cardsHTML + pagHTML;
+    html += '</div>';
+    container.innerHTML = html + pagHTML;
   }
 
   // ============================================================
-  // 4. LOCAL SEARCH
+  // 4. SEARCH
   // ============================================================
   function initSearch() {
     var navMenus = document.querySelector('#nav #menus .menus_items');
@@ -298,121 +283,105 @@
     searchBtn.innerHTML = '<a id="search-button" class="site-page" title="搜索 (Ctrl+K)"><i class="fas fa-search"></i></a>';
     navMenus.appendChild(searchBtn);
 
-    var searchHTML =
+    document.body.insertAdjacentHTML('beforeend',
       '<div id="search-mask"></div>' +
       '<div id="search-dialog">' +
         '<div class="search-header">' +
-          '<i class="fas fa-search" style="color:#999"></i>' +
+          '<i class="fas fa-search" style="color:var(--text-secondary)"></i>' +
           '<input id="search-input" type="text" placeholder="输入关键词搜索..." autocomplete="off">' +
           '<button class="search-close" id="search-close">&times;</button>' +
         '</div>' +
         '<div id="search-results" class="search-results">' +
           '<div class="search-empty">输入关键词开始搜索</div>' +
         '</div>' +
-      '</div>';
-    document.body.insertAdjacentHTML('beforeend', searchHTML);
+      '</div>');
 
-    var searchData = null;
-    var searchLoaded = false;
+    var searchData = null, searchLoaded = false;
 
-    function loadSearchData(cb) {
+    function loadData(cb) {
       if (searchLoaded) { cb(); return; }
-      fetch('/search.xml')
-        .then(function (r) { return r.text(); })
-        .then(function (xml) {
-          var parser = new DOMParser();
-          var doc = parser.parseFromString(xml, 'text/xml');
-          var entries = doc.querySelectorAll('entry');
-          searchData = [];
-          entries.forEach(function (entry) {
-            var title = entry.querySelector('title');
-            var url = entry.querySelector('url');
-            var content = entry.querySelector('content');
-            if (title && title.textContent.trim()) {
-              searchData.push({
-                title: title.textContent.trim(),
-                url: url ? url.textContent.trim() : '',
-                content: content ? content.textContent.trim().replace(/<[^>]+>/g, '') : ''
-              });
-            }
-          });
-          searchLoaded = true;
-          cb();
-        });
-    }
-
-    function escapeRegex(str) {
-      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    function doSearch(query) {
-      var container = document.getElementById('search-results');
-      if (!container) return;
-      if (!query) { container.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>'; return; }
-      var q = query.toLowerCase();
-      var results = [];
-      searchData.forEach(function (item) {
-        var titleMatch = item.title.toLowerCase().indexOf(q) !== -1;
-        var contentMatch = item.content.toLowerCase().indexOf(q) !== -1;
-        if (titleMatch || contentMatch) {
-          var hlTitle = item.title.replace(new RegExp('(' + escapeRegex(q) + ')', 'gi'), '<mark class="search-keyword">$1</mark>');
-          var idx = item.content.toLowerCase().indexOf(q);
-          var excerpt;
-          if (idx > -1) {
-            var start = Math.max(0, idx - 30);
-            var end = Math.min(item.content.length, idx + q.length + 80);
-            excerpt = (start > 0 ? '...' : '') + item.content.substring(start, end) + (end < item.content.length ? '...' : '');
-          } else {
-            excerpt = item.content.substring(0, 100) + (item.content.length > 100 ? '...' : '');
+      fetch('/search.xml').then(function (r) { return r.text(); }).then(function (xml) {
+        var doc = new DOMParser().parseFromString(xml, 'text/xml');
+        searchData = [];
+        doc.querySelectorAll('entry').forEach(function (e) {
+          var t = e.querySelector('title'), u = e.querySelector('url'), c = e.querySelector('content');
+          if (t && t.textContent.trim()) {
+            searchData.push({
+              title: t.textContent.trim(),
+              url: u ? u.textContent.trim() : '',
+              content: c ? c.textContent.trim().replace(/<[^>]+>/g, '') : ''
+            });
           }
-          var hlExcerpt = excerpt.replace(new RegExp('(' + escapeRegex(q) + ')', 'gi'), '<mark class="search-keyword">$1</mark>');
-          results.push({ title: hlTitle, excerpt: hlExcerpt, url: item.url, score: titleMatch ? 2 : 1 });
+        });
+        searchLoaded = true;
+        cb();
+      });
+    }
+
+    function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+    function doSearch(q) {
+      var el = document.getElementById('search-results');
+      if (!el) return;
+      if (!q) { el.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>'; return; }
+      var ql = q.toLowerCase(), results = [];
+      searchData.forEach(function (it) {
+        var tm = it.title.toLowerCase().indexOf(ql) !== -1;
+        var cm = it.content.toLowerCase().indexOf(ql) !== -1;
+        if (tm || cm) {
+          var ht = it.title.replace(new RegExp('(' + esc(q) + ')', 'gi'), '<mark class="search-keyword">$1</mark>');
+          var idx = it.content.toLowerCase().indexOf(ql), ex;
+          if (idx > -1) {
+            var s = Math.max(0, idx - 30), e = Math.min(it.content.length, idx + q.length + 80);
+            ex = (s > 0 ? '...' : '') + it.content.substring(s, e) + (e < it.content.length ? '...' : '');
+          } else {
+            ex = it.content.substring(0, 100) + (it.content.length > 100 ? '...' : '');
+          }
+          var he = ex.replace(new RegExp('(' + esc(q) + ')', 'gi'), '<mark class="search-keyword">$1</mark>');
+          results.push({ title: ht, excerpt: he, url: it.url, score: tm ? 2 : 1 });
         }
       });
       results.sort(function (a, b) { return b.score - a.score; });
-      if (results.length === 0) {
-        container.innerHTML = '<div class="search-empty">未找到与 &quot;' + query + '&quot; 相关的结果</div>';
+      if (!results.length) {
+        el.innerHTML = '<div class="search-empty">未找到与 &quot;' + q + '&quot; 相关的结果</div>';
         return;
       }
-      var html = '';
+      var h = '';
       results.forEach(function (r) {
-        html += '<div class="search-result-item"><a class="search-result-title" href="' + r.url + '">' + r.title + '</a><div class="search-result-excerpt">' + r.excerpt + '</div></div>';
+        h += '<div class="search-result-item"><a class="search-result-title" href="' + r.url + '">' + r.title + '</a><div class="search-result-excerpt">' + r.excerpt + '</div></div>';
       });
-      container.innerHTML = html;
+      el.innerHTML = h;
     }
 
-    var searchMask = document.getElementById('search-mask');
-    var searchDialog = document.getElementById('search-dialog');
-    var searchInput = document.getElementById('search-input');
-    var searchClose = document.getElementById('search-close');
-    var searchButton = document.getElementById('search-button');
+    var mask = document.getElementById('search-mask');
+    var dialog = document.getElementById('search-dialog');
+    var input = document.getElementById('search-input');
+    var close = document.getElementById('search-close');
+    var btn = document.getElementById('search-button');
 
-    function openSearch() {
-      loadSearchData(function () {
-        searchMask.style.display = 'block';
-        searchDialog.style.display = 'flex';
+    function open() {
+      loadData(function () {
+        mask.style.display = 'block'; dialog.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        setTimeout(function () { searchInput.focus(); }, 200);
+        setTimeout(function () { input.focus(); }, 200);
       });
     }
-    function closeSearch() {
-      searchMask.style.display = 'none';
-      searchDialog.style.display = 'none';
-      document.body.style.overflow = '';
-      searchInput.value = '';
-      var results = document.getElementById('search-results');
-      if (results) results.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>';
+    function shut() {
+      mask.style.display = 'none'; dialog.style.display = 'none';
+      document.body.style.overflow = ''; input.value = '';
+      var r = document.getElementById('search-results');
+      if (r) r.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>';
     }
 
-    searchButton.addEventListener('click', openSearch);
-    searchClose.addEventListener('click', closeSearch);
-    searchMask.addEventListener('click', closeSearch);
-    searchInput.addEventListener('input', function () {
-      loadSearchData(function () { doSearch(searchInput.value.trim()); });
+    btn.addEventListener('click', open);
+    close.addEventListener('click', shut);
+    mask.addEventListener('click', shut);
+    input.addEventListener('input', function () {
+      loadData(function () { doSearch(input.value.trim()); });
     });
     document.addEventListener('keydown', function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
-      if (e.key === 'Escape' && searchDialog.style.display === 'flex') { closeSearch(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); open(); }
+      if (e.key === 'Escape' && dialog.style.display === 'flex') shut();
     });
   }
 
@@ -423,7 +392,7 @@
     initBubbles();
     initSearch();
     if (isHome) {
-      initHero();
+      initProfile();
       initCards();
     }
   }

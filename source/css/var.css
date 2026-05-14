@@ -1,4 +1,4 @@
-/* === Soft Pastel Color System (晴空主题) === */
+/* === Soft Pastel Color System === */
 :root {
   /* Brand */
   --brand: #2fcbe7;
@@ -20,6 +20,7 @@
   --card-shadow-hover: 0 48px 56px -32px rgba(0, 0, 0, 0.08);
   --card-highlight: inset 0 0 20px rgba(255, 255, 255, 0.25);
   --card-blur: blur(4px);
+  --card-radius: 40px;
 
   /* Nav glass */
   --nav-bg: rgba(255, 255, 255, 0.55);
@@ -40,13 +41,14 @@
   /* Transition */
   --theme-trans: background-color 0.5s ease, color 0.4s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 
-  /* Legacy overrides */
+  /* Overrides */
   --scrollbar-color: #2fcbe7;
   --btn-hover-color: #eec25e;
   --blockquote-color: #8b7667;
+  --text-highlight-color: #5B423F;
 }
 
-/* Dark mode (深夜主题) */
+/* Dark mode */
 [data-theme="dark"] {
   --brand: #2a48f3;
   --brand-secondary: #51d0b9;
@@ -69,4 +71,5 @@
 
   --scrollbar-color: #2a48f3;
   --blockquote-color: #acadae;
+  --text-highlight-color: #e6e8e8;
 }
