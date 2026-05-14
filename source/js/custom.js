@@ -169,6 +169,10 @@
         '<p class="profile-greeting">' + greeting + '</p>' +
         '<h1 class="profile-name">qixingovo</h1>' +
         '<p class="profile-bio">记录技术成长，分享开发心得</p>' +
+        '<div class="profile-links">' +
+          '<a href="https://github.com/qixingovo" target="_blank" rel="noopener" class="profile-link-item"><i class="fab fa-github"></i><span>GitHub</span></a>' +
+          '<a href="mailto:qixingovo@gmail.com" class="profile-link-item"><i class="fas fa-envelope"></i><span>Email</span></a>' +
+        '</div>' +
       '</div>');
   }
 
@@ -461,8 +465,7 @@
       if (isHome) {
         initBubbles();
         initReferenceProfile();
-        var rp = document.getElementById("recent-posts");
-        if (rp) rp.style.display = "none";
+        initReferenceCards();
       }
     } else {
       if (isHome) {

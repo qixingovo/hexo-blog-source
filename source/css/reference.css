@@ -50,11 +50,6 @@
   padding-top: 0 !important;
 }
 
-[data-layout="reference"] #aside-content,
-[data-layout="reference"] #rightside {
-  display: none !important;
-}
-
 /* === Navigation === */
 [data-layout="reference"] #nav .site-page { color: var(--text-secondary); }
 [data-layout="reference"] #nav .site-page:hover { color: var(--brand); }
