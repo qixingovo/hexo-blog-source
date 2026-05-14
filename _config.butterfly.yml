@@ -212,7 +212,7 @@ snackbar:
 
 # Background Animation
 canvas_nest:
-  enable: true
+  enable: false
   color: '0,0,255'
   opacity: 0.7
   zIndex: -1
@@ -221,7 +221,7 @@ canvas_nest:
 
 # Typewriter subtitle
 subtitle:
-  enable: true
+  enable: false
   effect: true
   source: false
   sub:
@@ -244,6 +244,9 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/var.css">
     - <link rel="stylesheet" href="/css/custom.css">
+    - <link rel="preconnect" href="https://fonts.googleapis.com">
+    - <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    - <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   bottom:
     - <script src="/js/custom.js"></script>
 
