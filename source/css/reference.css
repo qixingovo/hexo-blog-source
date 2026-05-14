@@ -50,6 +50,10 @@
   margin: 0 auto;
 }
 
+[data-layout="reference"] #aside-content {
+  display: none !important;
+}
+
 /* === Navigation === */
 [data-layout="reference"] #nav {
   background: var(--card-bg) !important;
